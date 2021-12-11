@@ -5,5 +5,15 @@ type Zone struct {
 	Name        string
 	Description string
 	PlaceId     uint
-	Objects     []Object
+	Place       Place `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+}
+
+func (Zone) TableName() string {
+	return "zone"
+}
+
+func CreateZone(name, description string, placeID uint) error {
+	zone := Zone{Name: name, Description: description, PlaceId: placeID}
+	Db.Create(&zone)
+	return nil
 }
