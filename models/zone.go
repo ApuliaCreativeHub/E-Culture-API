@@ -14,6 +14,6 @@ func (Zone) TableName() string {
 
 func CreateZone(name, description string, placeID uint) error {
 	zone := Zone{Name: name, Description: description, PlaceId: placeID}
-	Db.Create(&zone)
-	return nil
+	tx := Db.Create(&zone)
+	return tx.Error
 }

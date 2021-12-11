@@ -15,6 +15,6 @@ func (User) TableName() string {
 
 func CreateUser(name, surname, email, password string, isACurator bool) error {
 	user := User{Name: name, Surname: surname, IsACurator: isACurator, Email: email, Password: password}
-	Db.Create(&user)
-	return nil
+	tx := Db.Create(&user)
+	return tx.Error
 }

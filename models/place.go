@@ -16,6 +16,6 @@ func (Place) TableName() string {
 
 func CreatePlace(name, photoPath, address, description string, userId uint) error {
 	place := Place{Name: name, PhotoPath: photoPath, Address: address, Description: description, UserId: userId}
-	Db.Create(&place)
-	return nil
+	tx := Db.Create(&place)
+	return tx.Error
 }

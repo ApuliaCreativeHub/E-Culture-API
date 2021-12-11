@@ -23,6 +23,6 @@ func (Object) TableName() string {
 
 func CreateObject(name, description, age, photoPath string, zone uint) error {
 	object := Object{Name: name, Description: description, Age: age, PhotoPath: photoPath, ZoneId: zone}
-	Db.Create(&object)
-	return nil
+	tx := Db.Create(&object)
+	return tx.Error
 }
