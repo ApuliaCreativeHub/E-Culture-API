@@ -7,5 +7,15 @@ type Place struct {
 	Address     string
 	Description string
 	UserId      uint
-	Zones       []Zone
+	User        User `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+}
+
+func (Place) TableName() string {
+	return "place"
+}
+
+func CreatePlace(name, photoPath, address, description string, userId uint) error {
+	place := Place{Name: name, PhotoPath: photoPath, Address: address, Description: description, UserId: userId}
+	Db.Create(&place)
+	return nil
 }
