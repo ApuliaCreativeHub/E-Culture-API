@@ -1,8 +1,8 @@
 package models
 
 type IsPresentIn struct {
-	ObjectId uint `gorm:"primaryKey"`
-	PathId   uint `gorm:"primaryKey"`
+	ObjectID uint `gorm:"primaryKey"`
+	PathID   uint `gorm:"primaryKey"`
 	Order    uint `gorm:"primaryKey"`
 }
 
@@ -11,6 +11,6 @@ func (IsPresentIn) TableName() string {
 }
 
 func AddObjectToPath(pathId, objectId, order uint) error {
-	tx := Db.Create(&IsPresentIn{PathId: pathId, ObjectId: objectId, Order: order})
+	tx := Db.Create(&IsPresentIn{PathID: pathId, ObjectID: objectId, Order: order})
 	return tx.Error
 }
