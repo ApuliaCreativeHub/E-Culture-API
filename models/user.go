@@ -13,8 +13,22 @@ func (User) TableName() string {
 	return "user"
 }
 
-func CreateUser(name, surname, email, password string, isACurator bool) error {
-	user := User{Name: name, Surname: surname, IsACurator: isACurator, Email: email, Password: password}
-	tx := Db.Create(&user)
+func (u *User) Create() error {
+	tx := Db.Create(u)
+	return tx.Error
+}
+
+func (u *User) Update() error {
+	tx := Db.Model(u).Updates(u)
+	return tx.Error
+}
+
+func (u *User) Delete() error {
+	tx := Db.Delete(u)
+	return tx.Error
+}
+
+func (u *User) ReadByEmail() error {
+	tx := Db.Where("email=?", u.Email).Find(u)
 	return tx.Error
 }
