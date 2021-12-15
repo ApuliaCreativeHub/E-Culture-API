@@ -11,3 +11,10 @@ func TestCreatePath(t *testing.T) {
 		t.Errorf("err should be null but is %v", err)
 	}
 }
+
+func TestAddObjectToPath(t *testing.T) {
+	err := models.AddObjectToPath(1, 1, 1)
+	if err != nil {
+		t.Errorf("err should be null but is %v", err)
+	}
+}

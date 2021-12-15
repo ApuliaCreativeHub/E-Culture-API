@@ -1,12 +1,14 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type Path struct {
 	ID          uint
 	Name        string
 	Description string
-	UserId      uint
+	UserID      uint
 	User        User `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
@@ -18,7 +20,16 @@ func (Path) TableName() string {
 }
 
 func CreatePath(name, description string, userId uint) error {
-	path := Path{Name: name, Description: description, UserId: userId}
+	err := Db.SetupJoinTable(&Path{}, "Objects", &IsPresentIn{})
+	if err != nil {
+		return err
+	}
+	path := Path{Name: name, Description: description, UserID: userId}
 	tx := Db.Create(&path)
+	return tx.Error
+}
+
+func AddObjectToPath(pathId, objectId, order uint) error {
+	tx := Db.Create(&IsPresentIn{PathID: pathId, ObjectID: objectId, Order: order})
 	return tx.Error
 }
