@@ -10,7 +10,7 @@ type Object struct {
 	Description string
 	Age         string
 	PhotoPath   string
-	ZoneId      uint
+	ZoneID      uint
 	Zone        Zone `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
@@ -21,8 +21,23 @@ func (Object) TableName() string {
 	return "object"
 }
 
-func CreateObject(name, description, age, photoPath string, zone uint) error {
-	object := Object{Name: name, Description: description, Age: age, PhotoPath: photoPath, ZoneId: zone}
-	tx := Db.Create(&object)
+func (o *Object) Create() error {
+	tx := Db.Create(o)
 	return tx.Error
+}
+
+func (o *Object) Update() error {
+	tx := Db.Model(o).Updates(o)
+	return tx.Error
+}
+
+func (o *Object) Delete() error {
+	tx := Db.Delete(o)
+	return tx.Error
+}
+
+func (o *Object) ReadByZoneId() ([]Object, error) {
+	var objects []Object
+	tx := Db.Where("zone_id=?", o.ZoneID).Find(&objects)
+	return objects, tx.Error
 }
