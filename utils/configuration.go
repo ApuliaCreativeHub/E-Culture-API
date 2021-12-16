@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"gopkg.in/yaml.v2"
+	"log"
 	"os"
 )
 
@@ -18,6 +19,16 @@ type Config struct {
 		Host string `yaml:"host"`
 		Port string `yaml:"port"`
 	} `yaml:"server"`
+}
+
+//GetConfig Given a configuration path validate and return new Config
+func GetConfig(configPath string) (*Config, error) {
+	err := ValidateConfigPath(configPath)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	conf, err := NewConfig(configPath)
+	return conf, err
 }
 
 //NewConfig Given a configuration path read a new Config
