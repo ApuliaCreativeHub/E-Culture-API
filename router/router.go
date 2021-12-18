@@ -9,5 +9,6 @@ func Router() *mux.Router {
 	r := mux.NewRouter()
 	//TODO: add other routers
 	r.HandleFunc("/user/auth", controllers.AuthUser)
+	r.HandleFunc("/user/add", controllers.AddUser)
 	return r
 }

@@ -1,12 +1,16 @@
 package models
 
+import (
+	"E-Culture-API/utils"
+)
+
 type User struct {
 	ID         uint
-	Name       string
-	Surname    string
-	IsACurator bool
-	Email      string
-	Password   string
+	Name       string `json:"name"`
+	Surname    string `json:"surname"`
+	IsACurator bool   `json:"is_a_curator"`
+	Email      string `json:"email"`
+	Password   string `json:"password"`
 }
 
 func (User) TableName() string {
@@ -14,6 +18,11 @@ func (User) TableName() string {
 }
 
 func (u *User) Create() error {
+	var err error
+	u.Password, err = utils.CryptSHA1(u.Password)
+	if err != nil {
+		return err
+	}
 	tx := Db.Create(u)
 	return tx.Error
 }

@@ -2,26 +2,23 @@ package controllers
 
 import (
 	"E-Culture-API/models"
+	"E-Culture-API/utils"
 	"encoding/json"
-	"github.com/gorilla/mux"
 	"net/http"
 )
 
-func GetUserByEmail(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	user := models.User{Email: vars["email"]}
-	err := user.ReadByEmail()
+func AddUser(w http.ResponseWriter, r *http.Request) {
+	user := models.User{}
+	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
-	if user.ID == 0 {
-		w.WriteHeader(http.StatusNotFound)
-	}
-
-	err = json.NewEncoder(w).Encode(user)
+	err = user.Create()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 }
 
@@ -37,6 +34,11 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	cred.Password, err = utils.CryptSHA1(cred.Password)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	user := models.User{
 		Email: cred.Email,
 	}
