@@ -4,7 +4,9 @@ import (
 	"E-Culture-API/models"
 	"E-Culture-API/utils"
 	"encoding/json"
+	"log"
 	"net/http"
+	"time"
 )
 
 func AddUser(w http.ResponseWriter, r *http.Request) {
@@ -26,6 +28,7 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 	type credentials struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
+		UUID     string `json:"uuid"`
 	}
 	cred := credentials{}
 	err := json.NewDecoder(r.Body).Decode(&cred)
@@ -54,8 +57,40 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if user.Password == cred.Password && user.Email == cred.Email {
-		// TODO: Return user token
+		token, err := utils.NewJSONWebToken()
+		if err != nil {
+			log.Println("Error while creating a new JWT...")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		t := models.Token{
+			Token:     token,
+			CreatedAt: time.Now(),
+			UUID:      cred.UUID,
+			UserID:    user.ID,
+		}
+		err = t.Create()
+		if err != nil {
+			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		jsonMap := make(map[string]string)
+		jsonMap["token"] = token
+		jsonBody, err := json.Marshal(jsonMap)
+		if err != nil {
+			log.Println("Error while marshaling JSON...")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
+		_, err = w.Write(jsonBody)
+		if err != nil {
+			log.Println("Error while sending Auth response...")
+			return
+		}
 		return
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
