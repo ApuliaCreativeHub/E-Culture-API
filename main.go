@@ -1,6 +1,7 @@
 package main
 
 import (
+	"E-Culture-API/models"
 	"E-Culture-API/router"
 	"E-Culture-API/utils"
 	"log"
@@ -11,10 +12,18 @@ import (
 var configPath = "conf/conf.yml"
 
 func main() {
-	conf, err := utils.GetConfig(configPath)
+	err := utils.SetConfigPath(configPath)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	conf, err := utils.GetConfig()
 	if err != nil {
 		return
 	}
+
+	models.InitializeDBConnection()
+
 	srv := &http.Server{
 		Handler:      router.Router(),
 		Addr:         conf.Server.Host + ":" + conf.Server.Port,

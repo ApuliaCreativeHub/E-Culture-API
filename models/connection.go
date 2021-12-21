@@ -9,10 +9,9 @@ import (
 )
 
 var Db *gorm.DB
-var configPath = "conf/conf.yml"
 
-func init() {
-	conf, err := utils.GetConfig(configPath)
+func InitializeDBConnection() {
+	conf, err := utils.GetConfig()
 	if err != nil {
 		log.Fatalln(err)
 	}

@@ -3,9 +3,10 @@ package utils
 import (
 	"fmt"
 	"gopkg.in/yaml.v2"
-	"log"
 	"os"
 )
+
+var configPath string
 
 type Config struct {
 	Database struct {
@@ -19,14 +20,20 @@ type Config struct {
 		Host string `yaml:"host"`
 		Port string `yaml:"port"`
 	} `yaml:"server"`
+	Jwt struct {
+		Secret string `yaml:"secret"`
+	} `yaml:"jwt"`
 }
 
-//GetConfig Given a configuration path validate and return new Config
-func GetConfig(configPath string) (*Config, error) {
+// SetConfigPath Set a configuration path and validate it
+func SetConfigPath(path string) error {
+	configPath = path
 	err := ValidateConfigPath(configPath)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	return err
+}
+
+//GetConfig Return a new Config
+func GetConfig() (*Config, error) {
 	conf, err := NewConfig(configPath)
 	return conf, err
 }
