@@ -54,11 +54,11 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if user.Password == cred.Password && user.Email == cred.Email {
+		// TODO: Return user token
 		w.WriteHeader(http.StatusOK)
 		return
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-
 }
