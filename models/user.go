@@ -8,7 +8,7 @@ type User struct {
 	ID         uint
 	Name       string `json:"name"`
 	Surname    string `json:"surname"`
-	IsACurator bool   `json:"is_a_curator"`
+	IsACurator bool   `json:"isACurator"`
 	Email      string `json:"email"`
 	Password   string `json:"password"`
 }
