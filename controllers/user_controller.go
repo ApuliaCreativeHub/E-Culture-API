@@ -69,6 +69,8 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 			UUID:      cred.UUID,
 			UserID:    user.ID,
 		}
+		_ = t.Delete()
+
 		err = t.Create()
 		if err != nil {
 			log.Println(err)
@@ -96,4 +98,16 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
+}
+
+func Logout(w http.ResponseWriter, r *http.Request) {
+	t := new(models.Token)
+	err := json.NewDecoder(r.Body).Decode(&t)
+	if err != nil {
+		log.Println("Error while unmarshaling JSON...")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	_ = t.Delete()
 }
