@@ -9,3 +9,5 @@ Here's a sample structure:
     server:
       host: localhost
       port: 8080
+    jwt:
+      secret: yourSecret
