@@ -32,6 +32,7 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 	err = user.Create()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte("50"))
 		return
 	}
 }
@@ -49,6 +50,7 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 	uwt.User.Password, err = utils.CryptSHA1(uwt.User.Password)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte("50"))
 		return
 	}
 	user := models.User{
@@ -66,6 +68,7 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println("Error while creating a new JWT...")
 			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte("50"))
 			return
 		}
 		t := models.Token{
@@ -80,6 +83,7 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println(err)
 			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte("50"))
 			return
 		}
 
@@ -93,6 +97,7 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println("Error while marshaling JSON...")
 			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte("50"))
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -117,6 +122,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Error while unmarshaling JSON...")
 		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte("50"))
 		return
 	}
 
