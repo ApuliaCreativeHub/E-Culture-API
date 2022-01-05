@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// AddUser handles endpoint user/add
 func AddUser(w http.ResponseWriter, r *http.Request) {
 	user := models.User{}
 	err := json.NewDecoder(r.Body).Decode(&user)
@@ -24,6 +25,7 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// AuthUser handles endpoint user/auth
 func AuthUser(w http.ResponseWriter, r *http.Request) {
 	type credentials struct {
 		Email    string `json:"email"`
@@ -100,6 +102,7 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Logout handles endpoint user/logout
 func Logout(w http.ResponseWriter, r *http.Request) {
 	t := new(models.Token)
 	err := json.NewDecoder(r.Body).Decode(&t)
