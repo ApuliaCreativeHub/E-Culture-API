@@ -4,6 +4,8 @@ import (
 	"E-Culture-API/models"
 	"E-Culture-API/utils"
 	"encoding/json"
+	"errors"
+	"gorm.io/gorm"
 	"log"
 	"net/http"
 	"time"
@@ -15,12 +17,22 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(MalformedData))
+		return
+	}
+
+	tempUser := models.User{Email: user.Email}
+	err = tempUser.ReadByEmail()
+	if !errors.Is(err, gorm.ErrRecordNotFound) || tempUser.ID != 0 {
+		w.WriteHeader(http.StatusConflict)
+		_, _ = w.Write([]byte(EmailAlreadyExists))
 		return
 	}
 
 	err = user.Create()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte("50"))
 		return
 	}
 }
@@ -31,12 +43,14 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&uwt)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(MalformedData))
 		return
 	}
 
 	uwt.User.Password, err = utils.CryptSHA1(uwt.User.Password)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte("50"))
 		return
 	}
 	user := models.User{
@@ -45,11 +59,13 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 	err = user.ReadByEmail()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(General5xx))
 		return
 	}
 
 	if user.ID == 0 {
-		w.WriteHeader(http.StatusNotFound)
+		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = w.Write([]byte(EmailDoesNotExist))
 		return
 	}
 
@@ -58,6 +74,7 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println("Error while creating a new JWT...")
 			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte("50"))
 			return
 		}
 		t := models.Token{
@@ -72,6 +89,7 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println(err)
 			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte("50"))
 			return
 		}
 
@@ -85,6 +103,7 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println("Error while marshaling JSON...")
 			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte("50"))
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -97,6 +116,7 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 		return
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = w.Write([]byte(IncorrectCredentials))
 		return
 	}
 }
@@ -108,6 +128,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Error while unmarshaling JSON...")
 		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte("50"))
 		return
 	}
 
