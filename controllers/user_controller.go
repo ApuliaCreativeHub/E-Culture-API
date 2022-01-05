@@ -4,6 +4,8 @@ import (
 	"E-Culture-API/models"
 	"E-Culture-API/utils"
 	"encoding/json"
+	"errors"
+	"gorm.io/gorm"
 	"log"
 	"net/http"
 	"time"
@@ -15,6 +17,15 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(MalformedData))
+		return
+	}
+
+	tempUser := models.User{Email: user.Email}
+	err = tempUser.ReadByEmail()
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		w.WriteHeader(http.StatusConflict)
+		_, _ = w.Write([]byte(EmailAlreadyExists))
 		return
 	}
 
@@ -31,6 +42,7 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&uwt)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(MalformedData))
 		return
 	}
 
@@ -44,12 +56,8 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 	}
 	err = user.ReadByEmail()
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	if user.ID == 0 {
-		w.WriteHeader(http.StatusNotFound)
+		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = w.Write([]byte(EmailDoesNotExist))
 		return
 	}
 
@@ -97,6 +105,7 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 		return
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = w.Write([]byte(IncorrectCredentials))
 		return
 	}
 }
