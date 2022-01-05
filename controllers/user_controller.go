@@ -23,7 +23,7 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 
 	tempUser := models.User{Email: user.Email}
 	err = tempUser.ReadByEmail()
-	if !errors.Is(err, gorm.ErrRecordNotFound) {
+	if !errors.Is(err, gorm.ErrRecordNotFound) || tempUser.ID != 0 {
 		w.WriteHeader(http.StatusConflict)
 		_, _ = w.Write([]byte(EmailAlreadyExists))
 		return
@@ -58,6 +58,12 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 	}
 	err = user.ReadByEmail()
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(General5xx))
+		return
+	}
+
+	if user.ID == 0 {
 		w.WriteHeader(http.StatusUnauthorized)
 		_, _ = w.Write([]byte(EmailDoesNotExist))
 		return
