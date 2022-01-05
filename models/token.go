@@ -3,11 +3,11 @@ package models
 import "time"
 
 type Token struct {
-	Token     string
-	CreatedAt time.Time
-	UUID      string
-	UserID    uint
-	User      User `gorm:"constraint:OnUpdate:CASCADE,OnDelete:Cascade;"`
+	Token     string    `json:"token"`
+	CreatedAt time.Time `json:"createdAt"`
+	UUID      string    `json:"uuid"`
+	UserID    uint      `json:"-"`
+	User      User      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:Cascade;" json:"-"`
 }
 
 func (Token) TableName() string {

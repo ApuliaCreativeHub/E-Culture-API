@@ -27,25 +27,20 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 
 // AuthUser handles endpoint user/auth
 func AuthUser(w http.ResponseWriter, r *http.Request) {
-	type credentials struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-		UUID     string `json:"uuid"`
-	}
-	cred := credentials{}
-	err := json.NewDecoder(r.Body).Decode(&cred)
+	uwt := models.UserWithToken{}
+	err := json.NewDecoder(r.Body).Decode(&uwt)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	cred.Password, err = utils.CryptSHA1(cred.Password)
+	uwt.User.Password, err = utils.CryptSHA1(uwt.User.Password)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	user := models.User{
-		Email: cred.Email,
+		Email: uwt.User.Email,
 	}
 	err = user.ReadByEmail()
 	if err != nil {
@@ -58,7 +53,7 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user.Password == cred.Password && user.Email == cred.Email {
+	if user.Password == uwt.User.Password {
 		token, err := utils.NewJSONWebToken()
 		if err != nil {
 			log.Println("Error while creating a new JWT...")
@@ -68,7 +63,7 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 		t := models.Token{
 			Token:     token,
 			CreatedAt: time.Now(),
-			UUID:      cred.UUID,
+			UUID:      uwt.Token.UUID,
 			UserID:    user.ID,
 		}
 		_ = t.Delete()
@@ -80,9 +75,13 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		jsonMap := make(map[string]string)
-		jsonMap["token"] = token
-		jsonBody, err := json.Marshal(jsonMap)
+		user.Password = ""
+		uwt := models.UserWithToken{
+			User:  user,
+			Token: models.Token{Token: token},
+		}
+
+		jsonBody, err := json.Marshal(uwt)
 		if err != nil {
 			log.Println("Error while marshaling JSON...")
 			w.WriteHeader(http.StatusInternalServerError)
