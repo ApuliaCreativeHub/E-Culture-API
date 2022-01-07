@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Token struct {
-	Token     string    `json:"token"`
+	Token     string    `json:"token" gorm:"primaryKey"`
 	CreatedAt time.Time `json:"createdAt"`
 	UUID      string    `json:"uuid"`
 	UserID    uint      `json:"-"`
