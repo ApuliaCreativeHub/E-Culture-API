@@ -24,7 +24,7 @@ func (t *Token) Update() error {
 	return tx.Error
 }
 
-func (t *Token) Delete() error {
+func (t *Token) DeleteByUUID() error {
 	tx := Db.Where("uuid=?", t.UUID).Delete(t)
 	return tx.Error
 }

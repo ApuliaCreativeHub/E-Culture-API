@@ -50,7 +50,7 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 	uwt.User.Password, err = utils.CryptSHA1(uwt.User.Password)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte("50"))
+		_, _ = w.Write([]byte(General5xx))
 		return
 	}
 	user := models.User{
@@ -74,7 +74,7 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println("Error while creating a new JWT...")
 			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte("50"))
+			_, _ = w.Write([]byte(General5xx))
 			return
 		}
 		t := models.Token{
@@ -83,13 +83,13 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 			UUID:      uwt.Token.UUID,
 			UserID:    user.ID,
 		}
-		_ = t.Delete()
+		_ = t.DeleteByUUID()
 
 		err = t.Create()
 		if err != nil {
 			log.Println(err)
 			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte("50"))
+			_, _ = w.Write([]byte(General5xx))
 			return
 		}
 
@@ -103,7 +103,7 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println("Error while marshaling JSON...")
 			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte("50"))
+			_, _ = w.Write([]byte(General5xx))
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -128,9 +128,9 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Error while unmarshaling JSON...")
 		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte("50"))
+		_, _ = w.Write([]byte(General5xx))
 		return
 	}
 
-	_ = t.Delete()
+	_ = t.DeleteByUUID()
 }
