@@ -33,3 +33,8 @@ func (t *Token) DeleteByToken() error {
 	tx := Db.Where("token=?", t.Token).Delete(t)
 	return tx.Error
 }
+
+func (t *Token) ReadByToken() (int64, error) {
+	tx := Db.Where("token=?", t.Token).Find(t)
+	return tx.RowsAffected, tx.Error
+}
