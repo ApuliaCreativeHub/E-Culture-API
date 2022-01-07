@@ -8,8 +8,8 @@ import (
 func Router() *mux.Router {
 	r := mux.NewRouter()
 	//TODO: add other routers
-	r.HandleFunc("/user/auth", controllers.AuthUser)
-	r.HandleFunc("/user/add", controllers.AddUser)
-	r.HandleFunc("/user/logout", controllers.Logout)
+	r.HandleFunc("/user/auth", controllers.AuthUser).Methods("POST")
+	r.HandleFunc("/user/add", controllers.AddUser).Methods("POST")
+	r.HandleFunc("/user/logout", controllers.Logout).Methods("POST")
 	return r
 }
