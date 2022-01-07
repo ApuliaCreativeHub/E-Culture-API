@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"E-Culture-API/models"
+	"gorm.io/gorm"
 	"log"
 	"net/http"
 )
@@ -13,7 +14,9 @@ func checkAuthorization(r *http.Request) bool {
 	t.Token = authorizationHeader
 	rows, err := t.ReadByToken()
 	if err != nil {
-		log.Println(err)
+		if err != gorm.ErrRecordNotFound {
+			log.Println(err)
+		}
 		return false
 	}
 
