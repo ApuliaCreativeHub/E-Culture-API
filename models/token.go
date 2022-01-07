@@ -28,3 +28,8 @@ func (t *Token) DeleteByUUID() error {
 	tx := Db.Where("uuid=?", t.UUID).Delete(t)
 	return tx.Error
 }
+
+func (t *Token) DeleteByToken() error {
+	tx := Db.Where("token=?", t.Token).Delete(t)
+	return tx.Error
+}

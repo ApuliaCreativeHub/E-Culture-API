@@ -10,6 +10,6 @@ func Router() *mux.Router {
 	//TODO: add other routers
 	r.HandleFunc("/user/auth", controllers.AuthUser).Methods("POST")
 	r.HandleFunc("/user/add", controllers.AddUser).Methods("POST")
-	r.HandleFunc("/user/logout", controllers.Logout).Methods("POST")
+	r.HandleFunc("/user/logout", controllers.Logout).Methods("GET")
 	return r
 }

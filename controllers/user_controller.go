@@ -123,14 +123,10 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 
 // Logout handles endpoint user/logout
 func Logout(w http.ResponseWriter, r *http.Request) {
+	authorizationHeader := r.Header.Get("Authorization")
+	authorizationHeader = authorizationHeader[len("Bearer "):]
 	t := new(models.Token)
-	err := json.NewDecoder(r.Body).Decode(&t)
-	if err != nil {
-		log.Println("Error while unmarshaling JSON...")
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(General5xx))
-		return
-	}
+	t.Token = authorizationHeader
 
-	_ = t.DeleteByUUID()
+	_ = t.DeleteByToken()
 }
