@@ -122,7 +122,7 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // Logout handles endpoint user/logout
-func Logout(w http.ResponseWriter, r *http.Request) {
+func Logout(_ http.ResponseWriter, r *http.Request) {
 	authorizationHeader := r.Header.Get("Authorization")
 	authorizationHeader = authorizationHeader[len("Bearer "):]
 	t := new(models.Token)
