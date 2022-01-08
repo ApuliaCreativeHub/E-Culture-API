@@ -133,3 +133,37 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnauthorized)
 	}
 }
+
+func UpdateUser(w http.ResponseWriter, r *http.Request) {
+	if checkAuthorization(r) {
+		authorizationHeader := r.Header.Get("Authorization")
+		authorizationHeader = authorizationHeader[len("Bearer "):]
+		t := new(models.Token)
+		t.Token = authorizationHeader
+		_, err := t.ReadByToken()
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		usrUpdated := new(models.User)
+		err = json.NewDecoder(r.Body).Decode(usrUpdated)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(MalformedData))
+			return
+		}
+
+		u := new(models.User)
+		u = usrUpdated
+		u.ID = t.UserID
+		err = u.Update()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(UpdatingDataFailed))
+			return
+		}
+	} else {
+		w.WriteHeader(http.StatusUnauthorized)
+	}
+}

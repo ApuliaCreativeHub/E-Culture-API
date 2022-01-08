@@ -11,5 +11,6 @@ func Router() *mux.Router {
 	r.HandleFunc("/user/auth", controllers.AuthUser).Methods("POST")
 	r.HandleFunc("/user/add", controllers.AddUser).Methods("POST")
 	r.HandleFunc("/user/logout", controllers.Logout).Methods("GET")
+	r.HandleFunc("/user/update", controllers.UpdateUser).Methods("POST")
 	return r
 }

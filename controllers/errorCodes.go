@@ -6,6 +6,7 @@ const (
 	EmailDoesNotExist    = "42"
 	IncorrectCredentials = "43"
 
-	General5xx    = "50"
-	MalformedData = "51"
+	General5xx         = "50"
+	MalformedData      = "51"
+	UpdatingDataFailed = "52"
 )
