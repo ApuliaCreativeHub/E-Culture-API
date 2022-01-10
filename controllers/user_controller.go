@@ -124,7 +124,11 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 // Logout handles endpoint user/logout
 func Logout(w http.ResponseWriter, r *http.Request) {
 	if checkAuthorization(r) {
-		authorizationHeader := getTokenFromHeader(r)
+		authorizationHeader, err := getTokenFromHeader(r)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
 		t := new(models.Token)
 		t.Token = authorizationHeader
 		_ = t.DeleteByToken()
@@ -135,9 +139,10 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	if checkAuthorization(r) {
+		var err error
 		t := new(models.Token)
-		t.Token = getTokenFromHeader(r)
-		_, err := t.ReadByToken()
+		t.Token, err = getTokenFromHeader(r)
+		_, err = t.ReadByToken()
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			return

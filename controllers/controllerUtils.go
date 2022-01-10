@@ -2,13 +2,16 @@ package controllers
 
 import (
 	"E-Culture-API/models"
+	"fmt"
 	"gorm.io/gorm"
 	"log"
 	"net/http"
+	"strings"
 )
 
 func checkAuthorization(r *http.Request) bool {
-	authorizationHeader := getTokenFromHeader(r)
+	authorizationHeader, err := getTokenFromHeader(r)
+
 	t := new(models.Token)
 	t.Token = authorizationHeader
 	rows, err := t.ReadByToken()
@@ -22,8 +25,10 @@ func checkAuthorization(r *http.Request) bool {
 	return rows > 0
 }
 
-func getTokenFromHeader(r *http.Request) string {
-	// TODO: Check if header is present and well formed
+func getTokenFromHeader(r *http.Request) (string, error) {
 	authorizationHeader := r.Header.Get("Authorization")
-	return authorizationHeader[len("Bearer "):]
+	if authorizationHeader == "" || !strings.Contains(authorizationHeader, "Bearer ") {
+		return "", fmt.Errorf("no valid authorization header found")
+	}
+	return authorizationHeader[len("Bearer "):], nil
 }
