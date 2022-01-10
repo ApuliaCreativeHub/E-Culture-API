@@ -8,8 +8,7 @@ import (
 )
 
 func checkAuthorization(r *http.Request) bool {
-	authorizationHeader := r.Header.Get("Authorization")
-	authorizationHeader = authorizationHeader[len("Bearer "):]
+	authorizationHeader := getTokenFromHeader(r)
 	t := new(models.Token)
 	t.Token = authorizationHeader
 	rows, err := t.ReadByToken()
@@ -21,4 +20,10 @@ func checkAuthorization(r *http.Request) bool {
 	}
 
 	return rows > 0
+}
+
+func getTokenFromHeader(r *http.Request) string {
+	// TODO: Check if header is present and well formed
+	authorizationHeader := r.Header.Get("Authorization")
+	return authorizationHeader[len("Bearer "):]
 }
