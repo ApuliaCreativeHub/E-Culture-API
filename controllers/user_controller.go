@@ -135,6 +135,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//UpdateUser handles endpoint user/update
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	if checkAuthorization(r) {
 		var err error
@@ -184,4 +185,63 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
 	}
+}
+
+//ChangePassword handles endpoint user/changepassword
+func ChangePassword(w http.ResponseWriter, r *http.Request) {
+	user := models.User{}
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(MalformedData))
+		return
+	}
+
+	err = user.ReadByEmail()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(EmailDoesNotExist))
+		return
+	}
+	tempPsw, err := utils.GenerateRandomString(8)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(RecoveringPasswordFailed))
+		return
+	}
+
+	user.Password = tempPsw
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(RecoveringPasswordFailed))
+		return
+	}
+
+	err = user.Update()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(RecoveringPasswordFailed))
+		return
+	}
+
+	err = sendPasswordByEmail(tempPsw, user.Email)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(RecoveringPasswordFailed))
+		return
+	}
+}
+
+func sendPasswordByEmail(password, email string) error {
+	msg := "Subject: Recover password ECulture-Tool\n\n" +
+		"This is your temporary password:\n" + password + "\nUse it to log in your account and then change it!"
+
+	var emails []string
+	emails = append(emails, email)
+	err := SendMail(msg, emails)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
