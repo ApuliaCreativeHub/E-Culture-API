@@ -20,6 +20,10 @@ type Config struct {
 		Host string `yaml:"host"`
 		Port string `yaml:"port"`
 	} `yaml:"server"`
+	Email struct {
+		Address  string `yaml:"address"`
+		Password string `yaml:"password"`
+	} `yaml:"email"`
 	Jwt struct {
 		Secret string `yaml:"secret"`
 	} `yaml:"jwt"`
