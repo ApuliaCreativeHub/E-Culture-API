@@ -232,6 +232,33 @@ func ChangePassword(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func DeleteUser(w http.ResponseWriter, r *http.Request) {
+	if checkAuthorization(r) {
+		user := models.User{}
+		err := json.NewDecoder(r.Body).Decode(&user)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(MalformedData))
+			return
+		}
+
+		err = user.ReadByEmail()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(General5xx))
+			return
+		}
+		err = user.Delete()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(General5xx))
+			return
+		}
+	} else {
+		w.WriteHeader(http.StatusUnauthorized)
+	}
+}
+
 func sendPasswordByEmail(password, email string) error {
 	msg := "Subject: Recover password ECulture-Tool\n\n" +
 		"This is your temporary password:\n" + password + "\nUse it to log in your account and then change it!"
