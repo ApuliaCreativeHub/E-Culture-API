@@ -4,8 +4,6 @@ import (
 	"E-Culture-API/models"
 	"E-Culture-API/utils"
 	"encoding/json"
-	"errors"
-	"gorm.io/gorm"
 	"log"
 	"net/http"
 	"time"
@@ -23,7 +21,7 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 
 	tempUser := models.User{Email: user.Email}
 	err = tempUser.ReadByEmail()
-	if errors.Is(err, gorm.ErrRecordNotFound) || tempUser.ID != 0 {
+	if tempUser.ID != 0 {
 		w.WriteHeader(http.StatusConflict)
 		_, _ = w.Write([]byte(EmailAlreadyExists))
 		return
