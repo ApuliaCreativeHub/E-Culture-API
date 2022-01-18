@@ -23,7 +23,7 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 
 	tempUser := models.User{Email: user.Email}
 	err = tempUser.ReadByEmail()
-	if !errors.Is(err, gorm.ErrRecordNotFound) || tempUser.ID != 0 {
+	if errors.Is(err, gorm.ErrRecordNotFound) || tempUser.ID != 0 {
 		w.WriteHeader(http.StatusConflict)
 		_, _ = w.Write([]byte(EmailAlreadyExists))
 		return
