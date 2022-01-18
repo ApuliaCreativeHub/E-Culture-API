@@ -28,10 +28,12 @@ func (u *User) Create() error {
 }
 
 func (u *User) Update() error {
-	var err error
-	u.Password, err = utils.CryptSHA1(u.Password)
-	if err != nil {
-		return err
+	if u.Password != "" {
+		var err error
+		u.Password, err = utils.CryptSHA1(u.Password)
+		if err != nil {
+			return err
+		}
 	}
 	tx := Db.Model(u).Updates(u)
 	return tx.Error
