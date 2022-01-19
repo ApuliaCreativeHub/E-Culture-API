@@ -3,10 +3,13 @@ package router
 import (
 	"E-Culture-API/controllers"
 	"github.com/gorilla/mux"
+	"net/http"
 )
 
 func Router() *mux.Router {
 	r := mux.NewRouter()
+	//static route: serve files under /static/<filename>
+	r.PathPrefix("/static").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	//TODO: add other routers
 	r.HandleFunc("/user/auth", controllers.AuthUser).Methods("POST")
 	r.HandleFunc("/user/add", controllers.AddUser).Methods("POST")
