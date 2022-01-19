@@ -199,7 +199,7 @@ func ChangePassword(w http.ResponseWriter, r *http.Request) {
 
 	err = user.ReadByEmail()
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusConflict)
 		_, _ = w.Write([]byte(EmailDoesNotExist))
 		return
 	}
