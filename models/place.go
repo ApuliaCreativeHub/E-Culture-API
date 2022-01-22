@@ -2,12 +2,14 @@ package models
 
 type Place struct {
 	ID          uint
-	Name        string
-	PhotoPath   string
-	Address     string
-	Description string
+	Name        string `json:"name"`
+	PhotoPath   string `json:"photoPath"`
+	Address     string `json:"address"`
+	Description string `json:"description"`
+	Lat         string `json:"lat"`
+	Long        string `json:"long"`
 	UserID      uint
-	User        User `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	User        User `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"user"`
 }
 
 func (Place) TableName() string {
@@ -33,4 +35,9 @@ func (p *Place) ReadByUserId() ([]Place, error) {
 	var places []Place
 	tx := Db.Where("user_id=?", p.UserID).Find(&places)
 	return places, tx.Error
+}
+
+func (p *Place) ReadByAddress() error {
+	tx := Db.Where("address=?", p.Address).Find(p)
+	return tx.Error
 }

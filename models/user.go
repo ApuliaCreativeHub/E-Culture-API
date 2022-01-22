@@ -53,3 +53,9 @@ func (u *User) ReadByEmail() error {
 	tx := Db.Where("email=?", u.Email).Find(u)
 	return tx.Error
 }
+
+func (u *User) ReadAndIsACurator() bool {
+	Db.Where("id=?", u.ID).Find(u)
+
+	return u.IsACurator
+}
