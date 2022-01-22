@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	utils2 "E-Culture-API/controllers/utils"
 	"E-Culture-API/models"
 	"E-Culture-API/utils"
 	"encoding/json"
@@ -15,7 +16,7 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(MalformedData))
+		_, _ = w.Write([]byte(utils2.MalformedData))
 		return
 	}
 
@@ -23,7 +24,7 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 	err = tempUser.ReadByEmail()
 	if tempUser.ID != 0 {
 		w.WriteHeader(http.StatusConflict)
-		_, _ = w.Write([]byte(EmailAlreadyExists))
+		_, _ = w.Write([]byte(utils2.EmailAlreadyExists))
 		return
 	}
 
@@ -41,14 +42,14 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&uwt)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(MalformedData))
+		_, _ = w.Write([]byte(utils2.MalformedData))
 		return
 	}
 
 	uwt.User.Password, err = utils.CryptSHA1(uwt.User.Password)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(General5xx))
+		_, _ = w.Write([]byte(utils2.General5xx))
 		return
 	}
 	user := models.User{
@@ -57,13 +58,13 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 	err = user.ReadByEmail()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(General5xx))
+		_, _ = w.Write([]byte(utils2.General5xx))
 		return
 	}
 
 	if user.ID == 0 {
 		w.WriteHeader(http.StatusUnauthorized)
-		_, _ = w.Write([]byte(EmailDoesNotExist))
+		_, _ = w.Write([]byte(utils2.EmailDoesNotExist))
 		return
 	}
 
@@ -72,7 +73,7 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println("Error while creating a new JWT...")
 			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte(General5xx))
+			_, _ = w.Write([]byte(utils2.General5xx))
 			return
 		}
 		t := models.Token{
@@ -87,7 +88,7 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println(err)
 			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte(General5xx))
+			_, _ = w.Write([]byte(utils2.General5xx))
 			return
 		}
 
@@ -101,7 +102,7 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println("Error while marshaling JSON...")
 			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte(General5xx))
+			_, _ = w.Write([]byte(utils2.General5xx))
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -114,7 +115,7 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 		return
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
-		_, _ = w.Write([]byte(IncorrectCredentials))
+		_, _ = w.Write([]byte(utils2.IncorrectCredentials))
 		return
 	}
 }
@@ -151,7 +152,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		err = json.NewDecoder(r.Body).Decode(usrUpdated)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte(MalformedData))
+			_, _ = w.Write([]byte(utils2.MalformedData))
 			return
 		}
 
@@ -161,7 +162,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		err = u.Update()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte(UpdatingDataFailed))
+			_, _ = w.Write([]byte(utils2.UpdatingDataFailed))
 			return
 		}
 
@@ -171,7 +172,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println("Error while marshaling JSON...")
 			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte(General5xx))
+			_, _ = w.Write([]byte(utils2.General5xx))
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -193,41 +194,41 @@ func ChangePassword(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(MalformedData))
+		_, _ = w.Write([]byte(utils2.MalformedData))
 		return
 	}
 
 	err = user.ReadByEmail()
 	if err != nil {
-		w.WriteHeader(http.StatusConflict)
-		_, _ = w.Write([]byte(EmailDoesNotExist))
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(utils2.EmailDoesNotExist))
 		return
 	}
 	tempPsw, err := utils.GenerateRandomString(8)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(RecoveringPasswordFailed))
+		_, _ = w.Write([]byte(utils2.RecoveringPasswordFailed))
 		return
 	}
 
 	user.Password = tempPsw
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(RecoveringPasswordFailed))
+		_, _ = w.Write([]byte(utils2.RecoveringPasswordFailed))
 		return
 	}
 
 	err = user.Update()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(RecoveringPasswordFailed))
+		_, _ = w.Write([]byte(utils2.RecoveringPasswordFailed))
 		return
 	}
 
 	err = sendPasswordByEmail(tempPsw, user.Email)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(RecoveringPasswordFailed))
+		_, _ = w.Write([]byte(utils2.RecoveringPasswordFailed))
 		return
 	}
 }
@@ -238,20 +239,20 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		err := json.NewDecoder(r.Body).Decode(&user)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte(MalformedData))
+			_, _ = w.Write([]byte(utils2.MalformedData))
 			return
 		}
 
 		err = user.ReadByEmail()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte(General5xx))
+			_, _ = w.Write([]byte(utils2.General5xx))
 			return
 		}
 		err = user.Delete()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte(General5xx))
+			_, _ = w.Write([]byte(utils2.General5xx))
 			return
 		}
 	} else {
@@ -265,7 +266,7 @@ func sendPasswordByEmail(password, email string) error {
 
 	var emails []string
 	emails = append(emails, email)
-	err := SendMail(msg, emails)
+	err := utils2.SendMail(msg, emails)
 	if err != nil {
 		return err
 	}
