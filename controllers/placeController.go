@@ -10,17 +10,6 @@ import (
 //AddPlace handles endpoint place/add
 func AddPlace(w http.ResponseWriter, r *http.Request) {
 	if checkAuthorization(r) {
-		place := new(models.Place)
-		err := r.ParseMultipartForm(0)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte(utils.MalformedData))
-			return
-		}
-		place.Name = r.PostFormValue("name")
-		place.Address = r.PostFormValue("address")
-		place.Description = r.PostFormValue("description")
-
 		strToken, err := getTokenFromHeader(r)
 		tkn := models.Token{Token: strToken}
 		_, err = tkn.ReadByToken()
@@ -33,7 +22,18 @@ func AddPlace(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
+		place := new(models.Place)
 		place.UserID = user.ID
+
+		err = r.ParseMultipartForm(0)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(utils.MalformedData))
+			return
+		}
+		place.Name = r.PostFormValue("name")
+		place.Address = r.PostFormValue("address")
+		place.Description = r.PostFormValue("description")
 
 		tempPlace := models.Place{Address: place.Address}
 		err = tempPlace.ReadByAddress()
