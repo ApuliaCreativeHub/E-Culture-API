@@ -73,6 +73,13 @@ func AddPlace(w http.ResponseWriter, r *http.Request) {
 			_, _ = w.Write([]byte(utils.AddingPlaceFailed))
 			return
 		}
+		place.PhotoPath = path
+		err = place.Update()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(utils.AddingPlaceFailed))
+			return
+		}
 
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
