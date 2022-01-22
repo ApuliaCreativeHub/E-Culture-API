@@ -3,29 +3,23 @@ package controllers
 import (
 	"E-Culture-API/controllers/utils"
 	"E-Culture-API/models"
-	"encoding/json"
-	"io"
-	"io/ioutil"
 	"net/http"
+	"strconv"
 )
 
 //AddPlace handles endpoint place/add
 func AddPlace(w http.ResponseWriter, r *http.Request) {
 	if checkAuthorization(r) {
 		place := new(models.Place)
-		//TODO: change multipart/form-data to application/json and use base64 encoding for images
-		placeJSON, _, err := r.FormFile("place")
+		err := r.ParseMultipartForm(0)
 		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
+			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write([]byte(utils.MalformedData))
 			return
 		}
-		err = json.NewDecoder(placeJSON).Decode(&place)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			_, _ = w.Write([]byte(utils.MalformedData))
-			return
-		}
+		place.Name = r.PostFormValue("name")
+		place.Address = r.PostFormValue("address")
+		place.Description = r.PostFormValue("description")
 
 		strToken, err := getTokenFromHeader(r)
 		tkn := models.Token{Token: strToken}
@@ -39,6 +33,7 @@ func AddPlace(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
+		place.UserID = user.ID
 
 		tempPlace := models.Place{Address: place.Address}
 		err = tempPlace.ReadByAddress()
@@ -59,25 +54,26 @@ func AddPlace(w http.ResponseWriter, r *http.Request) {
 
 		photo, _, err := r.FormFile("img")
 		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			_, _ = w.Write([]byte(utils.MalformedData))
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(utils.ProcessingImagesFailed))
 			return
 		}
-		all, err := io.ReadAll(photo)
-		if err != nil {
-			return
-		}
-		//This is just a test
-		err = ioutil.WriteFile("static/images/test.jpg", all, 0655)
-		if err != nil {
-			return
-		}
+
 		err = place.Create()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write([]byte(utils.AddingPlaceFailed))
 			return
 		}
+
+		path := "static/images/" + strconv.Itoa(int(place.ID))
+		err = utils.MakeImgs(photo, path)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(utils.AddingPlaceFailed))
+			return
+		}
+
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
 	}

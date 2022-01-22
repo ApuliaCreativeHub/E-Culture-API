@@ -13,4 +13,5 @@ const (
 	UpdatingDataFailed       = "52"
 	RecoveringPasswordFailed = "53"
 	AddingPlaceFailed        = "54"
+	ProcessingImagesFailed   = "55"
 )

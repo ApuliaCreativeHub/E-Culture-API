@@ -1,15 +1,17 @@
 package models
 
 type Place struct {
-	ID          uint
-	Name        string `json:"name"`
-	PhotoPath   string `json:"photoPath"`
-	Address     string `json:"address"`
-	Description string `json:"description"`
-	Lat         string `json:"lat"`
-	Long        string `json:"long"`
-	UserID      uint
-	User        User `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"user"`
+	ID            uint
+	Name          string `json:"name"`
+	PhotoPath     string `json:"photoPath"`
+	Address       string `json:"address"`
+	Description   string `json:"description"`
+	Lat           string `json:"lat"`
+	Long          string `json:"long"`
+	UserID        uint
+	User          User   `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"user"`
+	NormalSizeImg string `gorm:"-"`
+	Thumbnail     string `gorm:"-"`
 }
 
 func (Place) TableName() string {
