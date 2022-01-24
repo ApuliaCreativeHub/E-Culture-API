@@ -24,7 +24,7 @@ func (p *Place) Create() error {
 }
 
 func (p *Place) Update() error {
-	tx := Db.Model(p).Updates(p)
+	tx := Db.Model(p).Where(p.ID).Updates(p)
 	return tx.Error
 }
 

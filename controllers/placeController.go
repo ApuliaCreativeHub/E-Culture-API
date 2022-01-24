@@ -54,13 +54,6 @@ func AddPlace(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = place.Create()
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte(utils.General5xx))
-			return
-		}
-
 		path := "static/images/" + strconv.Itoa(int(place.ID))
 		err = utils.MakeImgs(photo, path)
 		if err != nil {
@@ -68,6 +61,14 @@ func AddPlace(w http.ResponseWriter, r *http.Request) {
 			_, _ = w.Write([]byte(utils.General5xx))
 			return
 		}
+    
+    err = place.Create()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(utils.General5xx))
+			return
+		}
+    
 		place.PhotoPath = path
 		err = place.Update()
 		if err != nil {
@@ -120,6 +121,12 @@ func GetYourPlaces(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 
+		err = place.Create()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(utils.AddingPlaceFailed))
+			return
+		}
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
 	}
