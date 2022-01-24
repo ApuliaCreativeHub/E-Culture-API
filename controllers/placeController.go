@@ -12,15 +12,15 @@ import (
 //AddPlace handles endpoint place/add
 func AddPlace(w http.ResponseWriter, r *http.Request) {
 	if checkAuthorization(r) {
-		user, done := getUserByToken(w, r)
-		if !done {
+		user, err := getUserByToken(w, r)
+		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 		place := new(models.Place)
 		place.UserID = user.ID
 
-		err := r.ParseMultipartForm(0)
+		err = r.ParseMultipartForm(0)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write([]byte(utils.MalformedData))
@@ -57,7 +57,7 @@ func AddPlace(w http.ResponseWriter, r *http.Request) {
 		err = place.Create()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte(utils.AddingPlaceFailed))
+			_, _ = w.Write([]byte(utils.General5xx))
 			return
 		}
 
@@ -65,14 +65,14 @@ func AddPlace(w http.ResponseWriter, r *http.Request) {
 		err = utils.MakeImgs(photo, path)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte(utils.AddingPlaceFailed))
+			_, _ = w.Write([]byte(utils.General5xx))
 			return
 		}
 		place.PhotoPath = path
 		err = place.Update()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte(utils.AddingPlaceFailed))
+			_, _ = w.Write([]byte(utils.General5xx))
 			return
 		}
 
@@ -84,8 +84,8 @@ func AddPlace(w http.ResponseWriter, r *http.Request) {
 //GetYourPlaces handles endpoint place/getYours
 func GetYourPlaces(w http.ResponseWriter, r *http.Request) {
 	if checkAuthorization(r) {
-		user, done := getUserByToken(w, r)
-		if !done {
+		user, err := getUserByToken(w, r)
+		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
@@ -125,18 +125,53 @@ func GetYourPlaces(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getUserByToken(w http.ResponseWriter, r *http.Request) (models.User, bool) {
+func getUserByToken(w http.ResponseWriter, r *http.Request) (models.User, error) {
 	strToken, err := getTokenFromHeader(r)
 	tkn := models.Token{Token: strToken}
 	_, err = tkn.ReadByToken()
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		return models.User{}, false
+		return models.User{}, err
 	}
 	user := models.User{ID: tkn.UserID}
 	if !user.ReadAndIsACurator() {
-		w.WriteHeader(http.StatusUnauthorized)
-		return models.User{}, false
+		return models.User{}, err
 	}
-	return user, true
+	return user, nil
+}
+
+func DeletePlace(w http.ResponseWriter, r *http.Request) {
+	if checkAuthorization(r) {
+		place := models.Place{}
+		err := json.NewDecoder(r.Body).Decode(&place)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(utils.MalformedData))
+			return
+		}
+
+		err = place.Read()
+		if err != nil {
+			w.WriteHeader(http.StatusConflict)
+			_, _ = w.Write([]byte(utils.PlaceDoesNotExists))
+			return
+		}
+
+		user, err := getUserByToken(w, r)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		if user.ID != place.UserID {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		err = place.Delete()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(utils.General5xx))
+			return
+		}
+	}
 }
