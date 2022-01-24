@@ -1,7 +1,7 @@
 package models
 
 type Place struct {
-	ID            uint
+	ID            uint   `json:"id"`
 	Name          string `json:"name"`
 	PhotoPath     string `json:"photoPath"`
 	Address       string `json:"address"`
