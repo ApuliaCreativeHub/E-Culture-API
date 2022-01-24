@@ -19,5 +19,7 @@ func Router() *mux.Router {
 	r.HandleFunc("/user/changepassword", controllers.ChangePassword).Methods("POST")
 	//Place router
 	r.HandleFunc("/place/add", controllers.AddPlace).Methods("POST")
+	r.HandleFunc("/place/getYours", controllers.GetYourPlaces).Methods("GET")
+	r.HandleFunc("/place/delete", controllers.DeletePlace).Methods("POST")
 	return r
 }

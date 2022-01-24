@@ -10,8 +10,8 @@ type Place struct {
 	Long          string `json:"long"`
 	UserID        uint
 	User          User   `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"user"`
-	NormalSizeImg string `gorm:"-"`
-	Thumbnail     string `gorm:"-"`
+	NormalSizeImg string `gorm:"-" json:"normalSizeImg"`
+	Thumbnail     string `gorm:"-" json:"thumbnail"`
 }
 
 func (Place) TableName() string {
@@ -30,6 +30,11 @@ func (p *Place) Update() error {
 
 func (p *Place) Delete() error {
 	tx := Db.Delete(p)
+	return tx.Error
+}
+
+func (p *Place) Read() error {
+	tx := Db.Where("id=?", p.ID).Find(p)
 	return tx.Error
 }
 

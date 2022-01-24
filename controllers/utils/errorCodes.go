@@ -6,12 +6,12 @@ const (
 	EmailDoesNotExist         = "42"
 	IncorrectCredentials      = "43"
 	PlaceAddressAlreadyExists = "44"
-	AddressSearchingFailed    = "45"
+	AddressSearchFailed       = "45"
 
 	General5xx               = "50"
 	MalformedData            = "51"
 	UpdatingDataFailed       = "52"
 	RecoveringPasswordFailed = "53"
-	AddingPlaceFailed        = "54"
-	ProcessingImagesFailed   = "55"
+	ProcessingImagesFailed   = "54"
+	PlaceDoesNotExists       = "55"
 )
