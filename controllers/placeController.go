@@ -61,14 +61,14 @@ func AddPlace(w http.ResponseWriter, r *http.Request) {
 			_, _ = w.Write([]byte(utils.General5xx))
 			return
 		}
-    
-    err = place.Create()
+
+		err = place.Create()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write([]byte(utils.General5xx))
 			return
 		}
-    
+
 		place.PhotoPath = path
 		err = place.Update()
 		if err != nil {
@@ -119,12 +119,11 @@ func GetYourPlaces(w http.ResponseWriter, r *http.Request) {
 			log.Println("Error while sending Auth response...")
 			return
 		}
-		return
 
 		err = place.Create()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte(utils.AddingPlaceFailed))
+			_, _ = w.Write([]byte(utils.General5xx))
 			return
 		}
 	} else {
