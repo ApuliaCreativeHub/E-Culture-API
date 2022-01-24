@@ -12,7 +12,7 @@ import (
 //AddPlace handles endpoint place/add
 func AddPlace(w http.ResponseWriter, r *http.Request) {
 	if checkAuthorization(r) {
-		user, err := getUserByToken(w, r)
+		user, err := getUserByToken(r)
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
@@ -84,7 +84,7 @@ func AddPlace(w http.ResponseWriter, r *http.Request) {
 //GetYourPlaces handles endpoint place/getYours
 func GetYourPlaces(w http.ResponseWriter, r *http.Request) {
 	if checkAuthorization(r) {
-		user, err := getUserByToken(w, r)
+		user, err := getUserByToken(r)
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
@@ -99,7 +99,7 @@ func GetYourPlaces(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		for i, _ := range places {
+		for i := range places {
 			places[i].NormalSizeImg = places[i].PhotoPath + "/normal_size.png"
 			places[i].Thumbnail = places[i].PhotoPath + "/thumbnail.png"
 		}
@@ -125,7 +125,7 @@ func GetYourPlaces(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getUserByToken(w http.ResponseWriter, r *http.Request) (models.User, error) {
+func getUserByToken(r *http.Request) (models.User, error) {
 	strToken, err := getTokenFromHeader(r)
 	tkn := models.Token{Token: strToken}
 	_, err = tkn.ReadByToken()
@@ -156,7 +156,7 @@ func DeletePlace(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		user, err := getUserByToken(w, r)
+		user, err := getUserByToken(r)
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
