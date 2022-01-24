@@ -150,7 +150,7 @@ func DeletePlace(w http.ResponseWriter, r *http.Request) {
 		}
 
 		err = place.Read()
-		if err != nil {
+		if err != nil || place.ID == 0 {
 			w.WriteHeader(http.StatusConflict)
 			_, _ = w.Write([]byte(utils.PlaceDoesNotExists))
 			return
@@ -173,5 +173,7 @@ func DeletePlace(w http.ResponseWriter, r *http.Request) {
 			_, _ = w.Write([]byte(utils.General5xx))
 			return
 		}
+	} else {
+		w.WriteHeader(http.StatusUnauthorized)
 	}
 }
