@@ -12,7 +12,6 @@ const (
 	MalformedData            = "51"
 	UpdatingDataFailed       = "52"
 	RecoveringPasswordFailed = "53"
-	AddingPlaceFailed        = "54"
-	ProcessingImagesFailed   = "55"
-	PlaceDoesNotExists       = "56"
+	ProcessingImagesFailed   = "54"
+	PlaceDoesNotExists       = "55"
 )
