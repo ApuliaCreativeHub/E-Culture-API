@@ -33,6 +33,11 @@ func (p *Place) Delete() error {
 	return tx.Error
 }
 
+func (p *Place) Read() error {
+	tx := Db.Where("id=?", p.ID).Find(p)
+	return tx.Error
+}
+
 func (p *Place) ReadByUserId() ([]Place, error) {
 	var places []Place
 	tx := Db.Where("user_id=?", p.UserID).Find(&places)
