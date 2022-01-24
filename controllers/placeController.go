@@ -54,15 +54,15 @@ func AddPlace(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		path := "static/images/" + strconv.Itoa(int(place.ID))
-		err = utils.MakeImgs(photo, path)
+		err = place.Create()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write([]byte(utils.General5xx))
 			return
 		}
 
-		err = place.Create()
+		path := "static/images/" + strconv.Itoa(int(place.ID))
+		err = utils.MakeImgs(photo, path)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write([]byte(utils.General5xx))
