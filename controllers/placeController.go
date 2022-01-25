@@ -13,9 +13,11 @@ import (
 //AddPlace handles endpoint place/add
 func AddPlace(w http.ResponseWriter, r *http.Request) {
 	if checkAuthorization(r) {
-		place, photo := retrieveMultipartPlace(w, r)
-
-		err := place.Create()
+		place, photo, err := retrieveMultipartPlace(w, r)
+		if err != nil {
+			return
+		}
+		err = place.Create()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write([]byte(utils.General5xx))
@@ -43,11 +45,11 @@ func AddPlace(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func retrieveMultipartPlace(w http.ResponseWriter, r *http.Request) (*models.Place, multipart.File) {
+func retrieveMultipartPlace(w http.ResponseWriter, r *http.Request) (*models.Place, multipart.File, error) {
 	user, err := getUserByToken(r)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
-		return nil, nil
+		return nil, nil, err
 	}
 	place := new(models.Place)
 	place.UserID = user.ID
@@ -56,25 +58,29 @@ func retrieveMultipartPlace(w http.ResponseWriter, r *http.Request) (*models.Pla
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = w.Write([]byte(utils.MalformedData))
-		return nil, nil
+		return nil, nil, err
 	}
 	place.Name = r.PostFormValue("name")
 	place.Address = r.PostFormValue("address")
 	place.Description = r.PostFormValue("description")
+	uintID, err := strconv.Atoi(r.PostFormValue("id"))
+	if err == nil {
+		place.ID = uint(uintID)
+	}
 
 	tempPlace := models.Place{Address: place.Address}
 	err = tempPlace.ReadByAddress()
 	if tempPlace.ID != 0 {
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = w.Write([]byte(utils.PlaceAddressAlreadyExists))
-		return nil, nil
+		return nil, nil, err
 	}
 	var ll utils.LatLong
 	err = utils.RetrieveLatLong(place.Address, &ll)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = w.Write([]byte(utils.AddressSearchFailed))
-		return nil, nil
+		return nil, nil, err
 	}
 	place.Lat = ll.Lat
 	place.Long = ll.Long
@@ -83,10 +89,10 @@ func retrieveMultipartPlace(w http.ResponseWriter, r *http.Request) (*models.Pla
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = w.Write([]byte(utils.ProcessingImagesFailed))
-		return nil, nil
+		return nil, nil, err
 	}
 
-	return place, photo
+	return place, photo, nil
 }
 
 //GetYourPlaces handles endpoint place/getYours
@@ -187,10 +193,12 @@ func DeletePlace(w http.ResponseWriter, r *http.Request) {
 // UpdatePlace handles endpoint place/update
 func UpdatePlace(w http.ResponseWriter, r *http.Request) {
 	if checkAuthorization(r) {
-		place, photo := retrieveMultipartPlace(w, r)
-
+		place, photo, err := retrieveMultipartPlace(w, r)
+		if err != nil {
+			return
+		}
 		path := "static/images/" + strconv.Itoa(int(place.ID))
-		err := utils.MakeImgs(photo, path)
+		err = utils.MakeImgs(photo, path)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write([]byte(utils.General5xx))
