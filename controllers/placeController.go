@@ -70,7 +70,7 @@ func retrieveMultipartPlace(w http.ResponseWriter, r *http.Request) (*models.Pla
 
 	tempPlace := models.Place{Address: place.Address}
 	err = tempPlace.ReadByAddress()
-	if tempPlace.ID != 0 {
+	if tempPlace.ID != place.ID {
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = w.Write([]byte(utils.PlaceAddressAlreadyExists))
 		return nil, nil, err
@@ -197,6 +197,7 @@ func UpdatePlace(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			return
 		}
+
 		path := "static/images/" + strconv.Itoa(int(place.ID))
 		err = utils.MakeImgs(photo, path)
 		if err != nil {
