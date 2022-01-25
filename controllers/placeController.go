@@ -86,11 +86,6 @@ func retrieveMultipartPlace(w http.ResponseWriter, r *http.Request) (*models.Pla
 	place.Long = ll.Long
 
 	photo, _, err := r.FormFile("img")
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(utils.ProcessingImagesFailed))
-		return nil, nil, err
-	}
 
 	return place, photo, nil
 }
@@ -194,19 +189,22 @@ func DeletePlace(w http.ResponseWriter, r *http.Request) {
 func UpdatePlace(w http.ResponseWriter, r *http.Request) {
 	if checkAuthorization(r) {
 		place, photo, err := retrieveMultipartPlace(w, r)
-		if err != nil {
+		if err != nil && photo != nil {
 			return
 		}
 
-		path := "static/images/" + strconv.Itoa(int(place.ID))
-		err = utils.MakeImgs(photo, path)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte(utils.General5xx))
-			return
+		if photo != nil {
+			path := "static/images/" + strconv.Itoa(int(place.ID))
+			err = utils.MakeImgs(photo, path)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				_, _ = w.Write([]byte(utils.General5xx))
+				return
+			}
+
+			place.PhotoPath = path
 		}
 
-		place.PhotoPath = path
 		err = place.Update()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
