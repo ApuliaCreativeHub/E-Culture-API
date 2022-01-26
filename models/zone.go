@@ -32,3 +32,8 @@ func (z *Zone) ReadByPlaceId() ([]Zone, error) {
 	tx := Db.Where("place_id=?", z.PlaceID).Find(&zones)
 	return zones, tx.Error
 }
+
+func (z *Zone) ReadByName() error {
+	tx := Db.Where("name=?", z.Name).Find(z)
+	return tx.Error
+}
