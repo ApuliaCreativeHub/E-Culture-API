@@ -215,3 +215,34 @@ func UpdatePlace(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnauthorized)
 	}
 }
+
+//GetPlaces handles endpoint place/get
+func GetPlaces(w http.ResponseWriter, r *http.Request) {
+	place := new(models.Place)
+	places, err := place.ReadAll()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(utils.PlaceDoesNotExists))
+		return
+	}
+
+	for i := range places {
+		places[i].NormalSizeImg = places[i].PhotoPath + "/normal_size.png"
+		places[i].Thumbnail = places[i].PhotoPath + "/thumbnail.png"
+	}
+
+	jsonBody, err := json.Marshal(places)
+	if err != nil {
+		log.Println("Error while marshaling JSON...")
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(utils.General5xx))
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(jsonBody)
+	if err != nil {
+		log.Println("Error while sending Auth response...")
+		return
+	}
+}
