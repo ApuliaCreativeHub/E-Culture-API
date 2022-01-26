@@ -4,6 +4,7 @@ import (
 	"E-Culture-API/controllers/utils"
 	"E-Culture-API/models"
 	"encoding/json"
+	"fmt"
 	"log"
 	"mime/multipart"
 	"net/http"
@@ -73,7 +74,7 @@ func retrieveMultipartPlace(w http.ResponseWriter, r *http.Request) (*models.Pla
 	if tempPlace.ID != place.ID {
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = w.Write([]byte(utils.PlaceAddressAlreadyExists))
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("address already exists")
 	}
 	var ll utils.LatLong
 	err = utils.RetrieveLatLong(place.Address, &ll)
@@ -85,7 +86,7 @@ func retrieveMultipartPlace(w http.ResponseWriter, r *http.Request) (*models.Pla
 	place.Lat = ll.Lat
 	place.Long = ll.Long
 
-	photo, _, err := r.FormFile("img")
+	photo, _, _ := r.FormFile("img")
 
 	return place, photo, nil
 }
@@ -189,7 +190,7 @@ func DeletePlace(w http.ResponseWriter, r *http.Request) {
 func UpdatePlace(w http.ResponseWriter, r *http.Request) {
 	if checkAuthorization(r) {
 		place, photo, err := retrieveMultipartPlace(w, r)
-		if err != nil && photo != nil {
+		if err != nil {
 			return
 		}
 
@@ -201,7 +202,6 @@ func UpdatePlace(w http.ResponseWriter, r *http.Request) {
 				_, _ = w.Write([]byte(utils.General5xx))
 				return
 			}
-
 			place.PhotoPath = path
 		}
 
@@ -217,7 +217,7 @@ func UpdatePlace(w http.ResponseWriter, r *http.Request) {
 }
 
 //GetPlaces handles endpoint place/get
-func GetPlaces(w http.ResponseWriter, r *http.Request) {
+func GetPlaces(w http.ResponseWriter, _ *http.Request) {
 	place := new(models.Place)
 	places, err := place.ReadAll()
 	if err != nil {
