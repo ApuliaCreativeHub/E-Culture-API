@@ -59,14 +59,6 @@ func AddZone(w http.ResponseWriter, r *http.Request) {
 
 // GetPlaceZones handles endpoint zone/getPlaceZones
 func GetPlaceZones(w http.ResponseWriter, r *http.Request) {
-	/*place := models.Place{}
-	err := json.NewDecoder(r.Body).Decode(&place)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(utils.MalformedData))
-		return
-	}*/
-
 	placeId, err := strconv.Atoi(r.FormValue("placeId"))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
