@@ -32,3 +32,17 @@ func getTokenFromHeader(r *http.Request) (string, error) {
 	}
 	return authorizationHeader[len("Bearer "):], nil
 }
+
+func getUserByToken(r *http.Request) (models.User, error) {
+	strToken, err := getTokenFromHeader(r)
+	tkn := models.Token{Token: strToken}
+	_, err = tkn.ReadByToken()
+	if err != nil {
+		return models.User{}, err
+	}
+	user := models.User{ID: tkn.UserID}
+	if !user.ReadAndIsACurator() {
+		return models.User{}, err
+	}
+	return user, nil
+}

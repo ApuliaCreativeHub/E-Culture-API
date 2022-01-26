@@ -133,20 +133,6 @@ func GetYourPlaces(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getUserByToken(r *http.Request) (models.User, error) {
-	strToken, err := getTokenFromHeader(r)
-	tkn := models.Token{Token: strToken}
-	_, err = tkn.ReadByToken()
-	if err != nil {
-		return models.User{}, err
-	}
-	user := models.User{ID: tkn.UserID}
-	if !user.ReadAndIsACurator() {
-		return models.User{}, err
-	}
-	return user, nil
-}
-
 func DeletePlace(w http.ResponseWriter, r *http.Request) {
 	if checkAuthorization(r) {
 		place := models.Place{}
