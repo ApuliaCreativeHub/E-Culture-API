@@ -7,6 +7,7 @@ const (
 	IncorrectCredentials      = "43"
 	PlaceAddressAlreadyExists = "44"
 	AddressSearchFailed       = "45"
+	ZoneNameAlreadyExists     = "46"
 
 	General5xx               = "50"
 	MalformedData            = "51"
