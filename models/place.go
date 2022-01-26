@@ -48,3 +48,9 @@ func (p *Place) ReadByAddress() error {
 	tx := Db.Where("address=?", p.Address).Find(p)
 	return tx.Error
 }
+
+func (p *Place) ReadAll() ([]Place, error) {
+	var places []Place
+	tx := Db.Find(&places)
+	return places, tx.Error
+}
