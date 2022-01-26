@@ -5,7 +5,7 @@ type Zone struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	PlaceID     uint   `json:"place_id"`
-	Place       Place  `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Place       Place  `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"-"`
 }
 
 func (Zone) TableName() string {
