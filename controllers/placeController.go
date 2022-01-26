@@ -9,6 +9,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 //AddPlace handles endpoint place/add
@@ -26,7 +27,7 @@ func AddPlace(w http.ResponseWriter, r *http.Request) {
 		}
 
 		path := "static/images/" + strconv.Itoa(int(place.ID))
-		err = utils.MakeImgs(photo, path)
+		err = utils.MakeImgs(photo, path, place.UpdatedAt.Format(time.RFC3339Nano))
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write([]byte(utils.General5xx))
@@ -71,7 +72,7 @@ func retrieveMultipartPlace(w http.ResponseWriter, r *http.Request) (*models.Pla
 
 	tempPlace := models.Place{Address: place.Address}
 	err = tempPlace.ReadByAddress()
-	if tempPlace.ID != place.ID {
+	if tempPlace.ID != place.ID && tempPlace.ID != 0 {
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = w.Write([]byte(utils.PlaceAddressAlreadyExists))
 		return nil, nil, fmt.Errorf("address already exists")
@@ -110,8 +111,8 @@ func GetYourPlaces(w http.ResponseWriter, r *http.Request) {
 		}
 
 		for i := range places {
-			places[i].NormalSizeImg = places[i].PhotoPath + "/normal_size.png"
-			places[i].Thumbnail = places[i].PhotoPath + "/thumbnail.png"
+			places[i].NormalSizeImg = places[i].PhotoPath + "/" + places[i].UpdatedAt.Format(time.RFC3339Nano)
+			//places[i].Thumbnail = places[i].PhotoPath + "/thumbnail.png"
 		}
 
 		jsonBody, err := json.Marshal(places)
@@ -194,22 +195,21 @@ func UpdatePlace(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if photo != nil {
-			path := "static/images/" + strconv.Itoa(int(place.ID))
-			err = utils.MakeImgs(photo, path)
-			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				_, _ = w.Write([]byte(utils.General5xx))
-				return
-			}
-			place.PhotoPath = path
-		}
-
 		err = place.Update()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write([]byte(utils.General5xx))
 			return
+		}
+
+		if photo != nil {
+			path := "static/images/" + strconv.Itoa(int(place.ID))
+			err = utils.MakeImgs(photo, path, place.UpdatedAt.Format(time.RFC3339Nano))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				_, _ = w.Write([]byte(utils.General5xx))
+				return
+			}
 		}
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -227,8 +227,8 @@ func GetPlaces(w http.ResponseWriter, _ *http.Request) {
 	}
 
 	for i := range places {
-		places[i].NormalSizeImg = places[i].PhotoPath + "/normal_size.png"
-		places[i].Thumbnail = places[i].PhotoPath + "/thumbnail.png"
+		places[i].NormalSizeImg = places[i].PhotoPath + "/" + places[i].UpdatedAt.Format(time.RFC3339Nano)
+		//places[i].Thumbnail = places[i].PhotoPath + "/thumbnail.png"
 	}
 
 	jsonBody, err := json.Marshal(places)
