@@ -15,4 +15,5 @@ const (
 	RecoveringPasswordFailed = "53"
 	ProcessingImagesFailed   = "54"
 	PlaceDoesNotExists       = "55"
+	ZoneDoesNotExists        = "56"
 )

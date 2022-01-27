@@ -37,3 +37,8 @@ func (z *Zone) ReadByName() error {
 	tx := Db.Where("name=?", z.Name).Find(z)
 	return tx.Error
 }
+
+func (z *Zone) ReadAndPreloadPlace() error {
+	tx := Db.Where("id=?", z.ID).Preload("Place").Find(z)
+	return tx.Error
+}

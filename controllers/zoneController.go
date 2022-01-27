@@ -90,3 +90,71 @@ func GetPlaceZones(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func DeleteZone(w http.ResponseWriter, r *http.Request) {
+	if checkAuthorization(r) {
+		zone := models.Zone{}
+		err := json.NewDecoder(r.Body).Decode(&zone)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(utils.MalformedData))
+			return
+		}
+
+		err = zone.ReadAndPreloadPlace()
+		if err != nil || zone.ID == 0 {
+			w.WriteHeader(http.StatusConflict)
+			_, _ = w.Write([]byte(utils.ZoneDoesNotExists))
+			return
+		}
+
+		err = isUserAbleToAct(r, zone.Place.UserID)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		err = zone.Delete()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(utils.General5xx))
+			return
+		}
+	} else {
+		w.WriteHeader(http.StatusUnauthorized)
+	}
+}
+
+func UpdateZone(w http.ResponseWriter, r *http.Request) {
+	if checkAuthorization(r) {
+		zone := models.Zone{}
+		err := json.NewDecoder(r.Body).Decode(&zone)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(utils.MalformedData))
+			return
+		}
+
+		tempZone := zone
+		err = tempZone.ReadAndPreloadPlace()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(utils.General5xx))
+			return
+		}
+		err = isUserAbleToAct(r, tempZone.Place.UserID)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		err = zone.Update()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(utils.General5xx))
+			return
+		}
+	} else {
+		w.WriteHeader(http.StatusUnauthorized)
+	}
+}
