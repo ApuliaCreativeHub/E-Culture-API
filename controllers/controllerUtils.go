@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"E-Culture-API/models"
+	"errors"
 	"fmt"
 	"gorm.io/gorm"
 	"log"
@@ -45,4 +46,16 @@ func getUserByToken(r *http.Request) (models.User, error) {
 		return models.User{}, err
 	}
 	return user, nil
+}
+
+func isUserAbleToAct(r *http.Request, structureUserId uint) error {
+	user, err := getUserByToken(r)
+	if err != nil {
+		return err
+	}
+
+	if user.ID != structureUserId {
+		return errors.New("UnauthorizedAction")
+	}
+	return nil
 }

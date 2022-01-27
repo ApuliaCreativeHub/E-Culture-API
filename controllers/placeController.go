@@ -133,6 +133,7 @@ func GetYourPlaces(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//DeletePlace handles endpoint place/delete
 func DeletePlace(w http.ResponseWriter, r *http.Request) {
 	if checkAuthorization(r) {
 		place := models.Place{}
@@ -150,13 +151,8 @@ func DeletePlace(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		user, err := getUserByToken(r)
+		err = isUserAbleToAct(r, place.UserID)
 		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-
-		if user.ID != place.UserID {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
@@ -177,6 +173,12 @@ func UpdatePlace(w http.ResponseWriter, r *http.Request) {
 	if checkAuthorization(r) {
 		place, photo, err := retrieveMultipartPlace(w, r)
 		if err != nil {
+			return
+		}
+
+		err = isUserAbleToAct(r, place.UserID)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
