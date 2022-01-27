@@ -9,7 +9,6 @@ import (
 	"mime/multipart"
 	"net/http"
 	"strconv"
-	"time"
 )
 
 //AddPlace handles endpoint place/add
@@ -27,7 +26,7 @@ func AddPlace(w http.ResponseWriter, r *http.Request) {
 		}
 
 		path := "static/images/" + strconv.Itoa(int(place.ID))
-		err = utils.MakeImgs(photo, path, place.UpdatedAt.Format(time.RFC3339Nano))
+		fileName, err := utils.MakeImgs(photo, path)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write([]byte(utils.General5xx))
@@ -35,6 +34,7 @@ func AddPlace(w http.ResponseWriter, r *http.Request) {
 		}
 
 		place.PhotoPath = path
+		place.FileName = fileName
 		err = place.Update()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -110,10 +110,7 @@ func GetYourPlaces(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		for i := range places {
-			places[i].NormalSizeImg = places[i].PhotoPath + "/" + places[i].UpdatedAt.Format(time.RFC3339Nano)
-			//places[i].Thumbnail = places[i].PhotoPath + "/thumbnail.png"
-		}
+		setFileName(places)
 
 		jsonBody, err := json.Marshal(places)
 		if err != nil {
@@ -195,21 +192,22 @@ func UpdatePlace(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = place.Update()
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte(utils.General5xx))
-			return
-		}
-
 		if photo != nil {
 			path := "static/images/" + strconv.Itoa(int(place.ID))
-			err = utils.MakeImgs(photo, path, place.UpdatedAt.Format(time.RFC3339Nano))
+			fileName, err := utils.MakeImgs(photo, path)
+			place.FileName = fileName
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				_, _ = w.Write([]byte(utils.General5xx))
 				return
 			}
+		}
+
+		err = place.Update()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(utils.General5xx))
+			return
 		}
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -226,10 +224,7 @@ func GetPlaces(w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 
-	for i := range places {
-		places[i].NormalSizeImg = places[i].PhotoPath + "/" + places[i].UpdatedAt.Format(time.RFC3339Nano)
-		//places[i].Thumbnail = places[i].PhotoPath + "/thumbnail.png"
-	}
+	setFileName(places)
 
 	jsonBody, err := json.Marshal(places)
 	if err != nil {
@@ -244,5 +239,12 @@ func GetPlaces(w http.ResponseWriter, _ *http.Request) {
 	if err != nil {
 		log.Println("Error while sending Auth response...")
 		return
+	}
+}
+
+func setFileName(places []models.Place) {
+	for i := range places {
+		places[i].NormalSizeImg = places[i].PhotoPath + "/" + places[i].FileName + "_n.png"
+		//places[i].Thumbnail = places[i].PhotoPath + "/thumbnail.png"
 	}
 }

@@ -3,19 +3,20 @@ package models
 import "time"
 
 type Place struct {
-	ID            uint   `json:"id"`
-	Name          string `json:"name"`
-	PhotoPath     string `json:"photoPath"`
-	Address       string `json:"address"`
-	Description   string `json:"description"`
-	Lat           string `json:"lat"`
-	Long          string `json:"long"`
-	UserID        uint
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
-	User          User   `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"user"`
-	NormalSizeImg string `gorm:"-" json:"normalSizeImg"`
-	Thumbnail     string `gorm:"-"`
+	ID            uint      `json:"id"`
+	Name          string    `json:"name"`
+	PhotoPath     string    `json:"photoPath"`
+	Address       string    `json:"address"`
+	Description   string    `json:"description"`
+	Lat           string    `json:"lat"`
+	Long          string    `json:"long"`
+	UserID        uint      `json:"user_id"`
+	CreatedAt     time.Time `json:"-"`
+	UpdatedAt     time.Time `json:"-"`
+	FileName      string    `json:"-"`
+	User          User      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"-"`
+	NormalSizeImg string    `gorm:"-" json:"normalSizeImg"`
+	Thumbnail     string    `gorm:"-" json:"-"`
 }
 
 func (Place) TableName() string {

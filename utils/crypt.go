@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"github.com/golang-jwt/jwt"
 	"io"
+	rand2 "math/rand"
 	"time"
 )
 
@@ -62,4 +63,17 @@ func GenerateRandomBytes(n int) ([]byte, error) {
 func GenerateRandomString(s int) (string, error) {
 	b, err := GenerateRandomBytes(s)
 	return base64.URLEncoding.EncodeToString(b), err
+}
+
+// RandStringRunes return an alphanumeric string win length
+//equals to n
+func RandStringRunes(n int) string {
+	letterRunes := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	rand2.Seed(time.Now().Unix())
+	b := make([]rune, n)
+	for i := range b {
+
+		b[i] = letterRunes[rand2.Intn(len(letterRunes))]
+	}
+	return string(b)
 }
