@@ -148,6 +148,7 @@ func UpdateZone(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// TODO: Check that a zone with same name for the same place doesn't exist first!
 		err = zone.Update()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
