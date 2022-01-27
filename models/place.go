@@ -8,7 +8,7 @@ type Place struct {
 	Description   string `json:"description"`
 	Lat           string `json:"lat"`
 	Long          string `json:"long"`
-	UserID        uint   `json:"user_id"`
+	UserID        uint   `json:"userId"`
 	User          User   `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"-"`
 	NormalSizeImg string `gorm:"-" json:"normalSizeImg"`
 	Thumbnail     string `gorm:"-" json:"thumbnail"`

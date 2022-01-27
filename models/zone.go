@@ -4,7 +4,7 @@ type Zone struct {
 	ID          uint   `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	PlaceID     uint   `json:"place_id"`
+	PlaceID     uint   `json:"placeId"`
 	Place       Place  `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"-"`
 }
 
