@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-func MakeImgs(r io.Reader, path string) error {
+func MakeImgs(r io.Reader, path string, imgName string) error {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		err := os.MkdirAll(path, 0777)
 		if err != nil {
@@ -22,7 +22,7 @@ func MakeImgs(r io.Reader, path string) error {
 		return err
 	}
 
-	err = ioutil.WriteFile(path+"/normal_size.png", all, 0655)
+	err = ioutil.WriteFile(path+"/"+imgName+".png", all, 0655)
 	if err != nil {
 		return err
 	}
