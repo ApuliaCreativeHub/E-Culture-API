@@ -26,7 +26,7 @@ func AddPlace(w http.ResponseWriter, r *http.Request) {
 		}
 
 		path := "static/images/" + strconv.Itoa(int(place.ID))
-		err = utils.MakeImgs(photo, path)
+		fileName, err := utils.MakeImgs(photo, path)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write([]byte(utils.General5xx))
@@ -34,6 +34,7 @@ func AddPlace(w http.ResponseWriter, r *http.Request) {
 		}
 
 		place.PhotoPath = path
+		place.FileName = fileName
 		err = place.Update()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -71,7 +72,7 @@ func retrieveMultipartPlace(w http.ResponseWriter, r *http.Request) (*models.Pla
 
 	tempPlace := models.Place{Address: place.Address}
 	err = tempPlace.ReadByAddress()
-	if tempPlace.ID != place.ID {
+	if tempPlace.ID != place.ID && tempPlace.ID != 0 {
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = w.Write([]byte(utils.PlaceAddressAlreadyExists))
 		return nil, nil, fmt.Errorf("address already exists")
@@ -109,10 +110,7 @@ func GetYourPlaces(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		for i := range places {
-			places[i].NormalSizeImg = places[i].PhotoPath + "/normal_size.png"
-			places[i].Thumbnail = places[i].PhotoPath + "/thumbnail.png"
-		}
+		setFileName(places)
 
 		jsonBody, err := json.Marshal(places)
 		if err != nil {
@@ -184,7 +182,8 @@ func UpdatePlace(w http.ResponseWriter, r *http.Request) {
 
 		if photo != nil {
 			path := "static/images/" + strconv.Itoa(int(place.ID))
-			err = utils.MakeImgs(photo, path)
+			fileName, err := utils.MakeImgs(photo, path)
+			place.FileName = fileName
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				_, _ = w.Write([]byte(utils.General5xx))
@@ -213,10 +212,7 @@ func GetPlaces(w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 
-	for i := range places {
-		places[i].NormalSizeImg = places[i].PhotoPath + "/normal_size.png"
-		places[i].Thumbnail = places[i].PhotoPath + "/thumbnail.png"
-	}
+	setFileName(places)
 
 	jsonBody, err := json.Marshal(places)
 	if err != nil {
@@ -231,5 +227,12 @@ func GetPlaces(w http.ResponseWriter, _ *http.Request) {
 	if err != nil {
 		log.Println("Error while sending Auth response...")
 		return
+	}
+}
+
+func setFileName(places []models.Place) {
+	for i := range places {
+		places[i].NormalSizeImg = places[i].PhotoPath + "/" + places[i].FileName + "_n.png"
+		//places[i].Thumbnail = places[i].PhotoPath + "/thumbnail.png"
 	}
 }
