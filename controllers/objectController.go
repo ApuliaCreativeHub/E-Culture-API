@@ -3,6 +3,8 @@ package controllers
 import (
 	"E-Culture-API/controllers/utils"
 	"E-Culture-API/models"
+	"encoding/json"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"strconv"
@@ -70,4 +72,40 @@ func retrieveMultipartObject(w http.ResponseWriter, r *http.Request) (*models.Ob
 	photo, _, _ := r.FormFile("img")
 
 	return object, photo, nil
+}
+
+// GetZoneObjects handles endpoint object/getZoneObjects
+func GetZoneObjects(w http.ResponseWriter, r *http.Request) {
+	zoneId, err := strconv.Atoi(r.FormValue("zoneId"))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(utils.General5xx))
+		return
+	}
+
+	object := models.Object{ZoneID: uint(zoneId)}
+	objects, err := object.ReadByZoneId()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(utils.General5xx))
+		return
+	}
+
+	setFileName(objects)
+
+	jsonBody, err := json.Marshal(objects)
+	if err != nil {
+		log.Println("Error while marshaling JSON...")
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(utils.General5xx))
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(jsonBody)
+	if err != nil {
+		log.Println("Error while sending Auth response...")
+		return
+	}
 }
