@@ -31,7 +31,7 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 	err = user.Create()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte("50"))
+		_, _ = w.Write([]byte(utils2.General5xx))
 		return
 	}
 }

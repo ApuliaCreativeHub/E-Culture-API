@@ -131,20 +131,7 @@ func GetYourPlaces(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getUserByToken(r *http.Request) (models.User, error) {
-	strToken, err := getTokenFromHeader(r)
-	tkn := models.Token{Token: strToken}
-	_, err = tkn.ReadByToken()
-	if err != nil {
-		return models.User{}, err
-	}
-	user := models.User{ID: tkn.UserID}
-	if !user.ReadAndIsACurator() {
-		return models.User{}, err
-	}
-	return user, nil
-}
-
+//DeletePlace handles endpoint place/delete
 func DeletePlace(w http.ResponseWriter, r *http.Request) {
 	if checkAuthorization(r) {
 		place := models.Place{}
@@ -162,13 +149,8 @@ func DeletePlace(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		user, err := getUserByToken(r)
+		err = isUserAbleToAct(r, place.UserID)
 		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-
-		if user.ID != place.UserID {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
@@ -192,6 +174,12 @@ func UpdatePlace(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		err = isUserAbleToAct(r, place.UserID)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
 		if photo != nil {
 			path := "static/images/" + strconv.Itoa(int(place.ID))
 			fileName, err := utils.MakeImgs(photo, path)
@@ -201,6 +189,7 @@ func UpdatePlace(w http.ResponseWriter, r *http.Request) {
 				_, _ = w.Write([]byte(utils.General5xx))
 				return
 			}
+			place.PhotoPath = path
 		}
 
 		err = place.Update()
@@ -220,7 +209,6 @@ func GetPlaces(w http.ResponseWriter, _ *http.Request) {
 	places, err := place.ReadAll()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(utils.PlaceDoesNotExists))
 		return
 	}
 
