@@ -1,11 +1,10 @@
 package models
 
 type Zone struct {
-	ID          uint   `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	PlaceID     uint   `json:"placeId"`
-	Place       Place  `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"-"`
+	ID      uint   `json:"id"`
+	Name    string `json:"name"`
+	PlaceID uint   `json:"placeId"`
+	Place   Place  `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"-"`
 }
 
 func (Zone) TableName() string {
@@ -40,5 +39,10 @@ func (z *Zone) ReadByName() error {
 
 func (z *Zone) ReadAndPreloadPlace() error {
 	tx := Db.Where("id=?", z.ID).Preload("Place").Find(z)
+	return tx.Error
+}
+
+func (z *Zone) ReadByNameAndPlaceId() error {
+	tx := Db.Where("name=? AND place_id=?", z.Name, z.PlaceID).Find(z)
 	return tx.Error
 }

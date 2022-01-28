@@ -210,7 +210,6 @@ func GetPlaces(w http.ResponseWriter, _ *http.Request) {
 	places, err := place.ReadAll()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(utils.PlaceDoesNotExists))
 		return
 	}
 

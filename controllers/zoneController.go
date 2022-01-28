@@ -38,8 +38,9 @@ func AddZone(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = zone.ReadByName()
-		if err != nil {
+		tempZone := zone
+		err = tempZone.ReadByNameAndPlaceId()
+		if err != nil || tempZone.PlaceID == zone.PlaceID && tempZone.ID != 0 {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write([]byte(utils.ZoneNameAlreadyExists))
 			return
@@ -148,7 +149,15 @@ func UpdateZone(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// TODO: Check that a zone with same name for the same place doesn't exist first!
+		tempZone = zone
+		tempZone.PlaceID = 0
+		err = tempZone.ReadByName()
+		if err != nil || tempZone.PlaceID == zone.PlaceID {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(utils.ZoneNameAlreadyExists))
+			return
+		}
+
 		err = zone.Update()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
