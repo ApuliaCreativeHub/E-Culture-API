@@ -53,6 +53,19 @@ func AddZone(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		jsonBody, err := json.Marshal(zone)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(utils.General5xx))
+			return
+		}
+
+		_, err = w.Write(jsonBody)
+		if err != nil {
+			log.Println("Error while sending AddZone response...")
+			return
+		}
+
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
 	}
