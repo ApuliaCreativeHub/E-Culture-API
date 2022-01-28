@@ -5,16 +5,17 @@ import (
 )
 
 type Object struct {
-	ID          uint
-	Name        string
-	Description string
-	Age         string
-	PhotoPath   string
-	ZoneID      uint
-	Zone        Zone `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	Paths       []Path `gorm:"many2many:is_present_in;"`
+	ID            uint      `json:"id"`
+	Name          string    `json:"name"`
+	Description   string    `json:"description"`
+	PhotoPath     string    `json:"photoPath"`
+	ZoneID        uint      `json:"zone_id"`
+	Zone          Zone      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	CreatedAt     time.Time `json:"-"`
+	UpdatedAt     time.Time `json:"-"`
+	FileName      string    `json:"-"`
+	NormalSizeImg string    `gorm:"-" json:"normalSizeImg"`
+	Paths         []Path    `gorm:"many2many:is_present_in;" json:"paths"`
 }
 
 func (Object) TableName() string {

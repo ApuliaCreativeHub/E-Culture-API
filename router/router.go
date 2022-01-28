@@ -33,5 +33,8 @@ func Router() *mux.Router {
 	r.HandleFunc("/zone/delete", controllers.DeleteZone).Methods("POST")
 	r.HandleFunc("/zone/update", controllers.UpdateZone).Methods("POST")
 
+	//Object routers
+	r.HandleFunc("/object/add", controllers.AddObject).Methods("POST")
+
 	return r
 }
