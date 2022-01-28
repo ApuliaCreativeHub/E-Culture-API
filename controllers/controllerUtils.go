@@ -59,3 +59,20 @@ func isUserAbleToAct(r *http.Request, structureUserId uint) error {
 	}
 	return nil
 }
+
+func setFileName(items interface{}) {
+	switch items.(type) {
+	case []models.Place:
+		places := items.([]models.Place)
+		for i := range places {
+			places[i].NormalSizeImg = places[i].PhotoPath + "/" + places[i].FileName + "_n.png"
+		}
+		break
+	case []models.Object:
+		objects := items.([]models.Object)
+		for i := range objects {
+			objects[i].NormalSizeImg = objects[i].PhotoPath + "/" + objects[i].FileName + "_n.png"
+		}
+		break
+	}
+}
