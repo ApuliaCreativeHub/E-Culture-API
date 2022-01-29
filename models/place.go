@@ -10,7 +10,7 @@ type Place struct {
 	Description   string    `json:"description"`
 	Lat           string    `json:"lat"`
 	Long          string    `json:"long"`
-	UserID        uint      `json:"user_id"`
+	UserID        uint      `json:"userId"`
 	CreatedAt     time.Time `json:"-"`
 	UpdatedAt     time.Time `json:"-"`
 	FileName      string    `json:"-"`
