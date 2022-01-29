@@ -41,37 +41,13 @@ func AddObject(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		if sendObjectJson(w, object) != nil {
+			return
+		}
+
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
 	}
-}
-
-func retrieveMultipartObject(w http.ResponseWriter, r *http.Request) (*models.Object, multipart.File, error) {
-	object := new(models.Object)
-
-	err := r.ParseMultipartForm(0)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(utils.MalformedData))
-		return nil, nil, err
-	}
-	object.Name = r.PostFormValue("name")
-	ZoneId, err := strconv.Atoi(r.PostFormValue("zoneId"))
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(utils.MalformedData))
-		return nil, nil, err
-	}
-	object.ZoneID = uint(ZoneId)
-	object.Description = r.PostFormValue("description")
-	uintID, err := strconv.Atoi(r.PostFormValue("id"))
-	if err == nil {
-		object.ID = uint(uintID)
-	}
-
-	photo, _, _ := r.FormFile("img")
-
-	return object, photo, nil
 }
 
 // GetZoneObjects handles endpoint object/getZoneObjects
@@ -149,7 +125,93 @@ func UpdateObject(w http.ResponseWriter, r *http.Request) {
 			_, _ = w.Write([]byte(utils.General5xx))
 			return
 		}
+
+		if sendObjectJson(w, object) != nil {
+			return
+		}
+
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
 	}
+}
+
+func DeleteObject(w http.ResponseWriter, r *http.Request) {
+	if checkAuthorization(r) {
+		object := models.Object{}
+		err := json.NewDecoder(r.Body).Decode(&object)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(utils.MalformedData))
+			return
+		}
+
+		err = object.ReadAll()
+		if err != nil {
+			w.WriteHeader(http.StatusConflict)
+			_, _ = w.Write([]byte(utils.ObjectDoesNotExists))
+			return
+		}
+
+		err = isUserAbleToAct(r, object.Zone.Place.UserID)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		err = object.Delete()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(utils.General5xx))
+			return
+		}
+	} else {
+		w.WriteHeader(http.StatusUnauthorized)
+	}
+}
+
+func sendObjectJson(w http.ResponseWriter, object *models.Object) error {
+	jsonBody, err := json.Marshal(object)
+	if err != nil {
+		log.Println("Error while marshaling JSON...")
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(utils.General5xx))
+		return err
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(jsonBody)
+	if err != nil {
+		log.Println("Error while sending Auth response...")
+		return err
+	}
+	return nil
+}
+
+func retrieveMultipartObject(w http.ResponseWriter, r *http.Request) (*models.Object, multipart.File, error) {
+	object := new(models.Object)
+
+	err := r.ParseMultipartForm(0)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(utils.MalformedData))
+		return nil, nil, err
+	}
+	object.Name = r.PostFormValue("name")
+	ZoneId, err := strconv.Atoi(r.PostFormValue("zoneId"))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(utils.MalformedData))
+		return nil, nil, err
+	}
+	object.ZoneID = uint(ZoneId)
+	object.Description = r.PostFormValue("description")
+	uintID, err := strconv.Atoi(r.PostFormValue("id"))
+	if err == nil {
+		object.ID = uint(uintID)
+	}
+
+	photo, _, _ := r.FormFile("img")
+
+	return object, photo, nil
 }

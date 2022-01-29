@@ -37,6 +37,7 @@ func Router() *mux.Router {
 	r.HandleFunc("/object/add", controllers.AddObject).Methods("POST")
 	r.Path("/object/getZoneObjects").Queries("zoneId", "{zoneId}").HandlerFunc(controllers.GetZoneObjects).Methods("GET")
 	r.HandleFunc("/object/update", controllers.UpdateObject).Methods("POST")
+	r.HandleFunc("/object/delete", controllers.DeleteObject).Methods("POST")
 
 	return r
 }
