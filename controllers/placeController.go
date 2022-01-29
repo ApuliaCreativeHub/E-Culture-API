@@ -11,6 +11,8 @@ import (
 	"strconv"
 )
 
+var imgPlacesPath = "static/images/place/"
+
 //AddPlace handles endpoint place/add
 func AddPlace(w http.ResponseWriter, r *http.Request) {
 	if checkAuthorization(r) {
@@ -25,7 +27,7 @@ func AddPlace(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		path := "static/images/" + strconv.Itoa(int(place.ID))
+		path := imgPlacesPath + strconv.Itoa(int(place.ID))
 		fileName, err := utils.MakeImgs(photo, path)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -181,7 +183,7 @@ func UpdatePlace(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if photo != nil {
-			path := "static/images/" + strconv.Itoa(int(place.ID))
+			path := imgPlacesPath + strconv.Itoa(int(place.ID))
 			fileName, err := utils.MakeImgs(photo, path)
 			place.FileName = fileName
 			if err != nil {
