@@ -231,10 +231,3 @@ func GetPlaces(w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 }
-
-func setFileName(places []models.Place) {
-	for i := range places {
-		places[i].NormalSizeImg = places[i].PhotoPath + "/" + places[i].FileName + "_n.png"
-		//places[i].Thumbnail = places[i].PhotoPath + "/thumbnail.png"
-	}
-}

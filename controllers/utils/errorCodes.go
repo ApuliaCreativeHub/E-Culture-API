@@ -16,4 +16,5 @@ const (
 	ProcessingImagesFailed   = "54"
 	PlaceDoesNotExists       = "55"
 	ZoneDoesNotExists        = "56"
+	ObjectDoesNotExists      = "56"
 )
