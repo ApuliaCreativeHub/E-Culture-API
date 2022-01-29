@@ -37,6 +37,11 @@ func (o *Object) Delete() error {
 	return tx.Error
 }
 
+func (o *Object) ReadAll() error {
+	tx := Db.Preload("Zone").Preload("Zone.Place").Preload("Zone.Place.User").Find(&o)
+	return tx.Error
+}
+
 func (o *Object) ReadByZoneId() ([]Object, error) {
 	var objects []Object
 	tx := Db.Where("zone_id=?", o.ZoneID).Find(&objects)

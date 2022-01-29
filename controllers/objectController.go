@@ -109,3 +109,47 @@ func GetZoneObjects(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+// UpdateObject handles endpoint object/update
+func UpdateObject(w http.ResponseWriter, r *http.Request) {
+	if checkAuthorization(r) {
+		object, photo, err := retrieveMultipartObject(w, r)
+		if err != nil {
+			return
+		}
+
+		tempObj := *object
+		err = tempObj.ReadAll()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(utils.General5xx))
+			return
+		}
+		err = isUserAbleToAct(r, tempObj.Zone.Place.UserID)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		if photo != nil {
+			path := "static/images/object/" + strconv.Itoa(int(object.ID))
+			fileName, err := utils.MakeImgs(photo, path)
+			object.FileName = fileName
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				_, _ = w.Write([]byte(utils.General5xx))
+				return
+			}
+			object.PhotoPath = path
+		}
+
+		err = object.Update()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(utils.General5xx))
+			return
+		}
+	} else {
+		w.WriteHeader(http.StatusUnauthorized)
+	}
+}
