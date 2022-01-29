@@ -10,6 +10,8 @@ import (
 	"strconv"
 )
 
+var imgObjectsPath = "static/images/object/"
+
 //AddObject handles endpoint object/add
 func AddObject(w http.ResponseWriter, r *http.Request) {
 	if checkAuthorization(r) {
@@ -24,7 +26,7 @@ func AddObject(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		path := "static/images/object/" + strconv.Itoa(int(object.ID))
+		path := imgObjectsPath + strconv.Itoa(int(object.ID))
 		fileName, err := utils.MakeImgs(photo, path)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -108,7 +110,7 @@ func UpdateObject(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if photo != nil {
-			path := "static/images/object/" + strconv.Itoa(int(object.ID))
+			path := imgObjectsPath + strconv.Itoa(int(object.ID))
 			fileName, err := utils.MakeImgs(photo, path)
 			object.FileName = fileName
 			if err != nil {
