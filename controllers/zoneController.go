@@ -76,7 +76,7 @@ func GetPlaceZones(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sendJSONResponse(w, zones)
+	_ = sendJSONResponse(w, zones)
 }
 
 func DeleteZone(w http.ResponseWriter, r *http.Request) {
@@ -152,7 +152,7 @@ func UpdateZone(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// TODO: Return updated zone
+		_ = sendJSONResponse(w, zone)
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
 	}
