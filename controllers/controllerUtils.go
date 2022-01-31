@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"E-Culture-API/controllers/utils"
 	"E-Culture-API/models"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
@@ -75,4 +77,23 @@ func setFileName(items interface{}) {
 		}
 		break
 	}
+}
+
+func sendJSONResponse(w http.ResponseWriter, data interface{}) error {
+	jsonBody, err := json.Marshal(data)
+	if err != nil {
+		log.Println("Error while marshaling JSON...")
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(utils.General5xx))
+		return err
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(jsonBody)
+	if err != nil {
+		log.Println("Error while sending Auth response...")
+		return err
+	}
+	return nil
 }

@@ -5,7 +5,6 @@ import (
 	"E-Culture-API/models"
 	"encoding/json"
 	"fmt"
-	"log"
 	"mime/multipart"
 	"net/http"
 	"strconv"
@@ -44,18 +43,7 @@ func AddPlace(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		jsonBody, err := json.Marshal(place)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte(utils.General5xx))
-			return
-		}
-
-		_, err = w.Write(jsonBody)
-		if err != nil {
-			log.Println("Error while sending AddZone response...")
-			return
-		}
+		_ = sendJSONResponse(w, place)
 
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -127,18 +115,8 @@ func GetYourPlaces(w http.ResponseWriter, r *http.Request) {
 
 		setFileName(places)
 
-		jsonBody, err := json.Marshal(places)
+		err = sendJSONResponse(w, places)
 		if err != nil {
-			log.Println("Error while marshaling JSON...")
-			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte(utils.General5xx))
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		_, err = w.Write(jsonBody)
-		if err != nil {
-			log.Println("Error while sending Auth response...")
 			return
 		}
 	} else {
@@ -213,6 +191,9 @@ func UpdatePlace(w http.ResponseWriter, r *http.Request) {
 			_, _ = w.Write([]byte(utils.General5xx))
 			return
 		}
+
+		// TODO: Return updated place
+
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
 	}
@@ -229,18 +210,5 @@ func GetPlaces(w http.ResponseWriter, _ *http.Request) {
 
 	setFileName(places)
 
-	jsonBody, err := json.Marshal(places)
-	if err != nil {
-		log.Println("Error while marshaling JSON...")
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(utils.General5xx))
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	_, err = w.Write(jsonBody)
-	if err != nil {
-		log.Println("Error while sending Auth response...")
-		return
-	}
+	_ = sendJSONResponse(w, places)
 }

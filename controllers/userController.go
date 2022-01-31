@@ -98,20 +98,7 @@ func AuthUser(w http.ResponseWriter, r *http.Request) {
 			Token: models.Token{Token: token},
 		}
 
-		jsonBody, err := json.Marshal(uwt)
-		if err != nil {
-			log.Println("Error while marshaling JSON...")
-			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte(utils2.General5xx))
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		_, err = w.Write(jsonBody)
-		if err != nil {
-			log.Println("Error while sending Auth response...")
-			return
-		}
+		_ = sendJSONResponse(w, uwt)
 		return
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -168,20 +155,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 		u.ID = 0
 		u.Password = ""
-		jsonBody, err := json.Marshal(u)
-		if err != nil {
-			log.Println("Error while marshaling JSON...")
-			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte(utils2.General5xx))
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		_, err = w.Write(jsonBody)
-		if err != nil {
-			log.Println("Error while sending Auth response...")
-			return
-		}
+		_ = sendJSONResponse(w, u)
 		return
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)

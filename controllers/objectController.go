@@ -4,7 +4,6 @@ import (
 	"E-Culture-API/controllers/utils"
 	"E-Culture-API/models"
 	"encoding/json"
-	"log"
 	"mime/multipart"
 	"net/http"
 	"strconv"
@@ -43,9 +42,7 @@ func AddObject(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if sendObjectJson(w, object) != nil {
-			return
-		}
+		_ = sendJSONResponse(w, object)
 
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -71,21 +68,7 @@ func GetZoneObjects(w http.ResponseWriter, r *http.Request) {
 
 	setFileName(objects)
 
-	jsonBody, err := json.Marshal(objects)
-	if err != nil {
-		log.Println("Error while marshaling JSON...")
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(utils.General5xx))
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	_, err = w.Write(jsonBody)
-	if err != nil {
-		log.Println("Error while sending Auth response...")
-		return
-	}
+	sendJSONResponse(w, objects)
 }
 
 // UpdateObject handles endpoint object/update
@@ -128,9 +111,7 @@ func UpdateObject(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if sendObjectJson(w, object) != nil {
-			return
-		}
+		_ = sendJSONResponse(w, object)
 
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -169,25 +150,6 @@ func DeleteObject(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
 	}
-}
-
-func sendObjectJson(w http.ResponseWriter, object *models.Object) error {
-	jsonBody, err := json.Marshal(object)
-	if err != nil {
-		log.Println("Error while marshaling JSON...")
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(utils.General5xx))
-		return err
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	_, err = w.Write(jsonBody)
-	if err != nil {
-		log.Println("Error while sending Auth response...")
-		return err
-	}
-	return nil
 }
 
 func retrieveMultipartObject(w http.ResponseWriter, r *http.Request) (*models.Object, multipart.File, error) {

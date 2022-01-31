@@ -4,7 +4,6 @@ import (
 	"E-Culture-API/controllers/utils"
 	"E-Culture-API/models"
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -53,18 +52,7 @@ func AddZone(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		jsonBody, err := json.Marshal(zone)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte(utils.General5xx))
-			return
-		}
-
-		_, err = w.Write(jsonBody)
-		if err != nil {
-			log.Println("Error while sending AddZone response...")
-			return
-		}
+		_ = sendJSONResponse(w, zone)
 
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -88,21 +76,7 @@ func GetPlaceZones(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonBody, err := json.Marshal(zones)
-	if err != nil {
-		log.Println("Error while marshaling JSON...")
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(utils.General5xx))
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	_, err = w.Write(jsonBody)
-	if err != nil {
-		log.Println("Error while sending Auth response...")
-		return
-	}
+	sendJSONResponse(w, zones)
 }
 
 func DeleteZone(w http.ResponseWriter, r *http.Request) {
@@ -177,6 +151,8 @@ func UpdateZone(w http.ResponseWriter, r *http.Request) {
 			_, _ = w.Write([]byte(utils.General5xx))
 			return
 		}
+
+		// TODO: Return updated zone
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
 	}
