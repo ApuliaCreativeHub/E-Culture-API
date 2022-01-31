@@ -88,6 +88,42 @@ func GetZoneObjects(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetObjectById handles endpoint object/getObjectById
+func GetObjectById(w http.ResponseWriter, r *http.Request) {
+	Id, err := strconv.Atoi(r.FormValue("id"))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(utils.General5xx))
+		return
+	}
+
+	object := models.Object{ID: uint(Id)}
+	err = object.ReadPreloadZone()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(utils.General5xx))
+		return
+	}
+
+	object.NormalSizeImg = object.PhotoPath + "/" + object.FileName + "_n.png"
+
+	jsonBody, err := json.Marshal(object)
+	if err != nil {
+		log.Println("Error while marshaling JSON...")
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(utils.General5xx))
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(jsonBody)
+	if err != nil {
+		log.Println("Error while sending Auth response...")
+		return
+	}
+}
+
 // UpdateObject handles endpoint object/update
 func UpdateObject(w http.ResponseWriter, r *http.Request) {
 	if checkAuthorization(r) {
@@ -97,7 +133,7 @@ func UpdateObject(w http.ResponseWriter, r *http.Request) {
 		}
 
 		tempObj := *object
-		err = tempObj.ReadAll()
+		err = tempObj.ReadPreloadZonePlaceUser()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write([]byte(utils.General5xx))
@@ -147,7 +183,7 @@ func DeleteObject(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = object.ReadAll()
+		err = object.ReadPreloadZonePlaceUser()
 		if err != nil {
 			w.WriteHeader(http.StatusConflict)
 			_, _ = w.Write([]byte(utils.ObjectDoesNotExists))
