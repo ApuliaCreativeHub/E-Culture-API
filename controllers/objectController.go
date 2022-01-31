@@ -4,6 +4,7 @@ import (
 	"E-Culture-API/controllers/utils"
 	"E-Culture-API/models"
 	"encoding/json"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"strconv"
@@ -73,7 +74,7 @@ func GetZoneObjects(w http.ResponseWriter, r *http.Request) {
 
 // GetObjectById handles endpoint object/getObjectById
 func GetObjectById(w http.ResponseWriter, r *http.Request) {
-	Id, err := strconv.Atoi(r.FormValue("id"))
+	Id, err := strconv.Atoi(r.FormValue("objectId"))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = w.Write([]byte(utils.General5xx))
