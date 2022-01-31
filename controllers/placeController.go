@@ -192,8 +192,7 @@ func UpdatePlace(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// TODO: Return updated place
-
+		_ = sendJSONResponse(w, place)
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
 	}
