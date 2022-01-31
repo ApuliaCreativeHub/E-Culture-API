@@ -4,6 +4,7 @@ import (
 	"E-Culture-API/controllers/utils"
 	"E-Culture-API/models"
 	"encoding/json"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"strconv"
@@ -68,7 +69,7 @@ func GetZoneObjects(w http.ResponseWriter, r *http.Request) {
 
 	setFileName(objects)
 
-	sendJSONResponse(w, objects)
+	_ = sendJSONResponse(w, objects)
 }
 
 // GetObjectById handles endpoint object/getObjectById
