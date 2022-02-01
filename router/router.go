@@ -43,6 +43,7 @@ func Router() *mux.Router {
 	// Path routers
 	r.HandleFunc("/path/add", controllers.AddPath).Methods("POST")
 	r.Path("/path/getPlacePaths").Queries("placeId", "{placeId}").HandlerFunc(controllers.GetPlacePaths).Methods("GET")
+	r.Path("/path/getCuratorPlacePaths").Queries("placeId", "{placeId}").HandlerFunc(controllers.GetCuratorPlacePaths).Methods("GET")
 	r.Path("/path/getUserPaths").Queries("userId", "{userId}").HandlerFunc(controllers.GetUserPaths).Methods("GET")
 	r.HandleFunc("/path/update", controllers.UpdatePath).Methods("POST")
 	r.HandleFunc("/path/delete", controllers.DeletePath).Methods("POST")

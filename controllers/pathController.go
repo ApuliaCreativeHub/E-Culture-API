@@ -83,6 +83,25 @@ func GetUserPaths(w http.ResponseWriter, r *http.Request) {
 	_ = sendJSONResponse(w, paths)
 }
 
+func GetCuratorPlacePaths(w http.ResponseWriter, r *http.Request) {
+	placeId, err := strconv.Atoi(r.FormValue("placeId"))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(utils.General5xx))
+		return
+	}
+
+	path := models.Path{}
+	paths, err := path.ReadCuratorPathsByPlaceId(uint(placeId))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(utils.General5xx))
+		return
+	}
+
+	_ = sendJSONResponse(w, paths)
+}
+
 func UpdatePath(w http.ResponseWriter, r *http.Request) {
 	if checkAuthorization(r) {
 		path := models.Path{}

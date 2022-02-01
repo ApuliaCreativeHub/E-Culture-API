@@ -34,6 +34,12 @@ func (p *Path) ReadPathsByPlaceId(placeId uint) ([]Path, error) {
 	return paths, tx.Error
 }
 
+func (p *Path) ReadCuratorPathsByPlaceId(placeId uint) ([]Path, error) {
+	var paths []Path
+	tx := Db.Preload("Objects").Preload("Objects.Zone", "place_id=?", placeId).Joins("INNER JOIN user ON user.id=path.user_id AND user.is_a_curator=1").Find(&paths)
+	return paths, tx.Error
+}
+
 func (p *Path) ReadByUserId(userId uint) ([]Path, error) {
 	var paths []Path
 	tx := Db.Where("user_id=?", userId).Preload("Objects").Find(&paths)
