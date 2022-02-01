@@ -8,15 +8,10 @@ import (
 	"strconv"
 )
 
-type PathWithObjects struct {
-	Path    models.Path     `json:"path"`
-	Objects []models.Object `json:"objects"`
-}
-
 func AddPath(w http.ResponseWriter, r *http.Request) {
 	if checkAuthorization(r) {
-		pwo := PathWithObjects{}
-		err := json.NewDecoder(r.Body).Decode(&pwo)
+		path := models.Path{}
+		err := json.NewDecoder(r.Body).Decode(&path)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write([]byte(utils.MalformedData))
@@ -29,16 +24,16 @@ func AddPath(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		pwo.Path.UserID = user.ID
-		err = pwo.Path.Create()
+		path.UserID = user.ID
+		err = path.Create()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write([]byte(utils.General5xx))
 			return
 		}
 
-		for i, o := range pwo.Objects {
-			err = pwo.Path.AddObjectToPath(o.ID, uint(i))
+		for i, o := range path.Objects {
+			err = path.AddObjectToPath(o.ID, uint(i))
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				_, _ = w.Write([]byte(utils.General5xx))
@@ -90,15 +85,15 @@ func GetUserPaths(w http.ResponseWriter, r *http.Request) {
 
 func UpdatePath(w http.ResponseWriter, r *http.Request) {
 	if checkAuthorization(r) {
-		pwo := PathWithObjects{}
-		err := json.NewDecoder(r.Body).Decode(&pwo)
+		path := models.Path{}
+		err := json.NewDecoder(r.Body).Decode(&path)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write([]byte(utils.MalformedData))
 			return
 		}
 
-		tempPath := pwo.Path
+		tempPath := path
 		err = tempPath.ReadByPathId()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -112,7 +107,7 @@ func UpdatePath(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = pwo.Path.Update(pwo.Objects)
+		err = path.Update()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write([]byte(utils.General5xx))
