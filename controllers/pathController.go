@@ -162,6 +162,8 @@ func DeletePath(w http.ResponseWriter, r *http.Request) {
 			_, _ = w.Write([]byte(utils.General5xx))
 			return
 		}
+
+		_ = sendJSONResponse(w, path)
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
 	}
