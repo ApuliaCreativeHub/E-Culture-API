@@ -5,13 +5,13 @@ import (
 )
 
 type Path struct {
-	ID        uint   `json:"id"`
-	Name      string `json:"name"`
-	UserID    uint   `json:"userId"`
-	User      User   `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"-"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Objects   []Object `gorm:"many2many:is_present_in;" json:"objects"`
+	ID        uint      `json:"id"`
+	Name      string    `json:"name"`
+	UserID    uint      `json:"userId"`
+	User      User      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"-"`
+	CreatedAt time.Time `json:"-"`
+	UpdatedAt time.Time `json:"-"`
+	Objects   []Object  `gorm:"many2many:is_present_in;" json:"objects"`
 }
 
 func (Path) TableName() string {
