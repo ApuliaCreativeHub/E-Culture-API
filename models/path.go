@@ -23,8 +23,8 @@ func (p *Path) Create() error {
 	return tx.Error
 }
 
-func (p *Path) AddObjectToPath(objectId, order uint) error {
-	tx := Db.Create(&IsPresentIn{PathID: p.ID, ObjectID: objectId, Order: order})
+func (p *Path) AddObjectToPath(objectId uint) error {
+	tx := Db.Create(&IsPresentIn{PathID: p.ID, ObjectID: objectId})
 	return tx.Error
 }
 
@@ -52,26 +52,30 @@ func (p *Path) ReadByPathId() error {
 }
 
 func (p *Path) Update() error {
-	tx := Db.Model(p).Updates(p)
-	err := p.Delete()
+	tx := Db.Updates(p)
+	if tx.Error != nil {
+		return tx.Error
+	}
+	err := p.DeleteAllPathObjects()
 	if err != nil {
 		return err
 	}
 
-	for i, o := range p.Objects {
-		err = p.AddObjectToPath(o.ID, uint(i))
+	for _, o := range p.Objects {
+		err = p.AddObjectToPath(o.ID)
 		if err != nil {
 			return err
 		}
 	}
-	return tx.Error
+	return err
 }
 
 func (p *Path) Delete() error {
+	tx := Db.Where("id=?", p.ID).Delete(p)
+	return tx.Error
+}
+
+func (p *Path) DeleteAllPathObjects() error {
 	tx := Db.Where("path_id=?", p.ID).Delete(&IsPresentIn{})
-	if tx.Error != nil {
-		return tx.Error
-	}
-	tx = Db.Where("id=?", p.ID).Delete(p)
 	return tx.Error
 }

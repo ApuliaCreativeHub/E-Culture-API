@@ -31,15 +31,6 @@ func AddPath(w http.ResponseWriter, r *http.Request) {
 			_, _ = w.Write([]byte(utils.General5xx))
 			return
 		}
-
-		for i, o := range path.Objects {
-			err = path.AddObjectToPath(o.ID, uint(i))
-			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				_, _ = w.Write([]byte(utils.General5xx))
-				return
-			}
-		}
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
 	}
