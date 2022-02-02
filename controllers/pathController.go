@@ -126,6 +126,7 @@ func UpdatePath(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		_ = sendJSONResponse(w, path)
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
 	}
