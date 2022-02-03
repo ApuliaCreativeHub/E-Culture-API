@@ -38,7 +38,20 @@ func (p *Path) ReadPathsByPlaceId(placeId uint) ([]Path, error) {
 func (p *Path) ReadCuratorPathsByPlaceId(placeId uint) ([]Path, error) {
 	var paths []Path
 	tx := Db.Preload("Objects").Joins("INNER JOIN user u ON path.user_id=u.id").Joins("INNER JOIN place p ON u.id=p.user_id AND p.id=?", placeId).Find(&paths)
-	return paths, tx.Error
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	for i := range paths {
+		tx = Db.Raw("SELECT * FROM object o "+
+			"INNER JOIN is_present_in ipi ON o.id=ipi.object_id "+
+			"WHERE ipi.path_id=? "+
+			"ORDER BY ipi.order", paths[i].ID).Find(&paths[i].Objects)
+		if tx.Error != nil {
+			return nil, tx.Error
+		}
+	}
+	return paths, nil
 }
 
 func (p *Path) ReadByUserId(userId uint) ([]Path, error) {
