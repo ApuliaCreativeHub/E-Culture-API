@@ -12,7 +12,7 @@ type Path struct {
 	CreatedAt time.Time `json:"-"`
 	UpdatedAt time.Time `json:"-"`
 	Objects   []Object  `gorm:"many2many:is_present_in;" json:"objects"`
-	Place     Place     `gorm:"-"`
+	Place     Place     `gorm:"-" json:"place"`
 }
 
 func (Path) TableName() string {
