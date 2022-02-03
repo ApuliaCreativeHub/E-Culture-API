@@ -44,8 +44,8 @@ func getUserByToken(r *http.Request) (models.User, error) {
 		return models.User{}, err
 	}
 	user := models.User{ID: tkn.UserID}
-	if !user.ReadAndIsACurator() {
-		return models.User{}, err
+	if user.ReadAndIsACurator() {
+		user.IsACurator = true
 	}
 	return user, nil
 }
