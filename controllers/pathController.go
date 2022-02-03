@@ -58,15 +58,14 @@ func GetPlacePaths(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetUserPaths(w http.ResponseWriter, r *http.Request) {
-	userId, err := strconv.Atoi(r.FormValue("userId"))
+	user, err := getUserByToken(r)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(utils.General5xx))
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	path := models.Path{}
-	paths, err := path.ReadByUserId(uint(userId))
+	paths, err := path.ReadByUserId(user.ID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = w.Write([]byte(utils.General5xx))
