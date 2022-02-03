@@ -43,7 +43,7 @@ func (p *Path) ReadCuratorPathsByPlaceId(placeId uint) ([]Path, error) {
 
 func (p *Path) ReadByUserId(userId uint) ([]Path, error) {
 	var paths []Path
-	tx := Db.Where("user_id=?", userId).Preload("Objects").Find(&paths)
+	tx := Db.Where("user_id=?", userId).Preload("Objects").Preload("Objects.Zone").Find(&paths)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}

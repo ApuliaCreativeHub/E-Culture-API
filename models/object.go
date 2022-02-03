@@ -10,7 +10,7 @@ type Object struct {
 	Description   string    `json:"description"`
 	PhotoPath     string    `json:"photoPath"`
 	ZoneID        uint      `json:"zoneId"`
-	Zone          Zone      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Zone          Zone      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"zone"`
 	CreatedAt     time.Time `json:"-"`
 	UpdatedAt     time.Time `json:"-"`
 	FileName      string    `json:"-"`
