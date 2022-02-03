@@ -59,3 +59,14 @@ func (p *Place) ReadAll() ([]Place, error) {
 	tx := Db.Find(&places)
 	return places, tx.Error
 }
+
+func (p *Place) ReadByPathId(pathId uint) error {
+	tx := Db.Raw("SELECT pl.* FROM place pl "+
+		"JOIN `zone` z ON z.place_id  =pl.id "+
+		"JOIN `object` o ON o.zone_id =z.id "+
+		"JOIN is_present_in ipi ON ipi.object_id =o.id "+
+		"JOIN `path` p ON p.id =ipi.path_id "+
+		"WHERE p.id = ? "+
+		"GROUP BY p.id", pathId).Find(p)
+	return tx.Error
+}

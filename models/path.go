@@ -12,6 +12,7 @@ type Path struct {
 	CreatedAt time.Time `json:"-"`
 	UpdatedAt time.Time `json:"-"`
 	Objects   []Object  `gorm:"many2many:is_present_in;" json:"objects"`
+	Place     Place     `gorm:"-"`
 }
 
 func (Path) TableName() string {
@@ -43,7 +44,18 @@ func (p *Path) ReadCuratorPathsByPlaceId(placeId uint) ([]Path, error) {
 func (p *Path) ReadByUserId(userId uint) ([]Path, error) {
 	var paths []Path
 	tx := Db.Where("user_id=?", userId).Preload("Objects").Find(&paths)
-	return paths, tx.Error
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	for i := range paths {
+		err := paths[i].Place.ReadByPathId(paths[i].ID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return paths, nil
 }
 
 func (p *Path) ReadByPathId() error {
