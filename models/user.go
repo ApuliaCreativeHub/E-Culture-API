@@ -5,7 +5,7 @@ import (
 )
 
 type User struct {
-	ID         uint
+	ID         uint   `json:"id"`
 	Name       string `json:"name"`
 	Surname    string `json:"surname"`
 	IsACurator bool   `json:"isACurator"`
