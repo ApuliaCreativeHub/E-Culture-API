@@ -31,7 +31,22 @@ func (p *Path) AddObjectToPath(objectId uint) error {
 
 func (p *Path) ReadPathsByPlaceId(placeId uint) ([]Path, error) {
 	var paths []Path
-	tx := Db.Preload("Objects").Preload("Objects.Zone", "place_id=?", placeId).Find(&paths)
+	tx := Db.Raw("SELECT p.* FROM path p "+
+		"INNER JOIN is_present_in ipi ON p.id=ipi.path_id "+
+		"INNER JOIN object o ON ipi.object_id=o.id "+
+		"INNER JOIN zone z ON o.zone_id=z.id "+
+		"WHERE z.place_id=? "+
+		"GROUP BY p.id", placeId).Find(&paths)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	var err error
+	paths, err = fetchPathObjects(paths)
+	if err != nil {
+		return nil, err
+	}
+
 	return paths, tx.Error
 }
 
@@ -42,29 +57,46 @@ func (p *Path) ReadCuratorPathsByPlaceId(placeId uint) ([]Path, error) {
 		return nil, tx.Error
 	}
 
-	for i := range paths {
-		tx = Db.Raw("SELECT * FROM object o "+
-			"INNER JOIN is_present_in ipi ON o.id=ipi.object_id "+
-			"WHERE ipi.path_id=? "+
-			"ORDER BY ipi.order", paths[i].ID).Find(&paths[i].Objects)
-		if tx.Error != nil {
-			return nil, tx.Error
-		}
+	var err error
+	paths, err = fetchPathObjects(paths)
+	if err != nil {
+		return nil, err
 	}
+
 	return paths, nil
 }
 
 func (p *Path) ReadByUserId(userId uint) ([]Path, error) {
 	var paths []Path
-	tx := Db.Where("user_id=?", userId).Preload("Objects").Preload("Objects.Zone").Find(&paths)
+	tx := Db.Where("user_id=?", userId).Find(&paths)
 	if tx.Error != nil {
 		return nil, tx.Error
+	}
+
+	var err error
+	paths, err = fetchPathObjects(paths)
+	if err != nil {
+		return nil, err
 	}
 
 	for i := range paths {
 		err := paths[i].Place.ReadByPathId(paths[i].ID)
 		if err != nil {
 			return nil, err
+		}
+	}
+
+	return paths, nil
+}
+
+func fetchPathObjects(paths []Path) ([]Path, error) {
+	for i := range paths {
+		tx := Db.Raw("SELECT * FROM object o "+
+			"INNER JOIN is_present_in ipi ON o.id=ipi.object_id "+
+			"WHERE ipi.path_id=? "+
+			"ORDER BY ipi.order", paths[i].ID).Preload("Zone").Find(&paths[i].Objects)
+		if tx.Error != nil {
+			return nil, tx.Error
 		}
 	}
 
