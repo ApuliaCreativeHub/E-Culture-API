@@ -54,6 +54,10 @@ func GetPlacePaths(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	for i := range paths {
+		setFileName(paths[i].Objects)
+	}
+
 	_ = sendJSONResponse(w, paths)
 }
 
@@ -70,6 +74,10 @@ func GetUserPaths(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = w.Write([]byte(utils.General5xx))
 		return
+	}
+
+	for i := range paths {
+		setFileName(paths[i].Objects)
 	}
 
 	_ = sendJSONResponse(w, paths)
@@ -89,6 +97,10 @@ func GetCuratorPlacePaths(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = w.Write([]byte(utils.General5xx))
 		return
+	}
+
+	for i := range paths {
+		setFileName(paths[i].Objects)
 	}
 
 	_ = sendJSONResponse(w, paths)
