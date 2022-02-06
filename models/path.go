@@ -57,7 +57,7 @@ func (p *Path) ReadCuratorPathsByPlaceId(placeId uint) ([]Path, error) {
 		"INNER JOIN `object` o ON ipi.object_id =o.id "+
 		"INNER JOIN `zone` z ON o.zone_id =z.id "+
 		"INNER JOIN place pl ON z.place_id =pl.id "+
-		"WHERE pl.id=? "+
+		"WHERE pl.id=? AND p.user_id=pl.user_id "+
 		"GROUP BY p.id", placeId).Find(&paths)
 	if tx.Error != nil {
 		return nil, tx.Error
