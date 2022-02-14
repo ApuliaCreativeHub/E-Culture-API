@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Token struct {
-	Token     string    `json:"token"`
+	Token     string    `json:"token" gorm:"primaryKey"`
 	CreatedAt time.Time `json:"createdAt"`
 	UUID      string    `json:"uuid"`
 	UserID    uint      `json:"-"`
@@ -24,7 +24,17 @@ func (t *Token) Update() error {
 	return tx.Error
 }
 
-func (t *Token) Delete() error {
+func (t *Token) DeleteByUUID() error {
 	tx := Db.Where("uuid=?", t.UUID).Delete(t)
 	return tx.Error
+}
+
+func (t *Token) DeleteByToken() error {
+	tx := Db.Where("token=?", t.Token).Delete(t)
+	return tx.Error
+}
+
+func (t *Token) ReadByToken() (int64, error) {
+	tx := Db.Where("token=?", t.Token).Find(t)
+	return tx.RowsAffected, tx.Error
 }
